@@ -1,6 +1,11 @@
 use bevy::{diagnostic::*, prelude::*, window::WindowResolution};
+use gen::{location::Location, walker::{destroy_walker_generators, setup_walkers, walk_walker_generators}};
+use room::mesh::{check_walkers, setup_rooms};
+use state::GameState;
 
 mod gen;
+mod room;
+mod state;
 
 fn main() {
     App::new()
@@ -19,5 +24,13 @@ fn main() {
             })
             .set(ImagePlugin::default_nearest()),
     )
+    .init_state::<GameState>()
+    .insert_resource(Location::default())
+    .add_systems(Startup, setup_walkers)
+    .add_systems(Update, (
+        walk_walker_generators,
+        destroy_walker_generators, 
+        check_walkers).run_if(in_state(GameState::Generating)))
+    .add_systems(OnEnter(GameState::Game), setup_rooms)
     .run();
 }
