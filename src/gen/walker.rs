@@ -5,9 +5,6 @@ use crate::state::GameState;
 
 use super::location::{WorldCatacomb};
 
-
-
-
 #[derive(Component)]
 pub struct Walker {
     pub current_location: IVec2,
