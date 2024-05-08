@@ -1,2 +1,2 @@
-pub mod walker;
 pub mod location;
+pub mod walker;

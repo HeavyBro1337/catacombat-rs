@@ -6,17 +6,20 @@ use crate::gen::location::WorldCatacomb;
 #[derive(Component, Reflect)]
 pub struct PlayerLocation {
     location: IVec2,
-    forward: IVec2
+    forward: IVec2,
 }
 
 pub enum Turn {
     Right,
-    Left
+    Left,
 }
 
 impl PlayerLocation {
     pub fn new() -> Self {
-        PlayerLocation { location: default(), forward: IVec2::Y }
+        PlayerLocation {
+            location: default(),
+            forward: IVec2::Y,
+        }
     }
 
     pub fn get_forward(&self) -> IVec2 {
@@ -31,11 +34,17 @@ impl PlayerLocation {
         let forward = self.forward;
         match dir {
             Turn::Right => {
-                let rot = IVec2 { x: forward.y, y: -forward.x };
+                let rot = IVec2 {
+                    x: forward.y,
+                    y: -forward.x,
+                };
                 self.forward = rot;
-            },
+            }
             Turn::Left => {
-                let rot = IVec2 { x: -forward.y, y: forward.x };
+                let rot = IVec2 {
+                    x: -forward.y,
+                    y: forward.x,
+                };
                 self.forward = rot;
             }
         }
