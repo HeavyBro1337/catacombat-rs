@@ -2,4 +2,4 @@ use bevy::{ecs::{component::Component, system::{Query, ResMut, Resource}}, math:
 
 
 #[derive(Resource, Default)]
-pub struct Location(pub HashSet<IVec2>);
+pub struct WorldCatacomb(pub HashSet<IVec2>);
