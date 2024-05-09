@@ -72,7 +72,6 @@ impl ServerChannel {
     }
 }
 
-
 pub fn connection_config() -> ConnectionConfig {
     ConnectionConfig {
         available_bytes_per_tick: 1024 * 1024,

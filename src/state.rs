@@ -4,8 +4,8 @@ use bevy::prelude::*;
 pub enum GameState {
     Loading = 0,
     Game = 1,
-    #[default]
     Generating = 2,
+    #[default]
     Menu = 3,
 }
 
@@ -13,5 +13,5 @@ pub enum GameState {
 pub enum NetworkState {
     #[default]
     Offline = 0,
-    Online = 1
+    Online = 1,
 }

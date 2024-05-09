@@ -14,18 +14,21 @@ pub fn convert_ivec2_to_vec3_plane(v: IVec2) -> Vec3 {
 }
 
 pub fn cli_parameter_arg<T>(args: &Vec<String>, options: Vec<String>) -> Option<T>
-where T: FromStr
+where
+    T: FromStr,
 {
-    let Some(index) = args.iter().position(|r| options.contains(r) ) else { return None };
+    let Some(index) = args.iter().position(|r| options.contains(r)) else {
+        return None;
+    };
 
     if index + 1 >= args.iter().len() {
-        return None
+        return None;
     }
     let cmd_str = &args[index + 1];
 
     match cmd_str.parse::<T>() {
         Ok(v) => Some(v),
-        Err(_) => None
+        Err(_) => None,
     }
 }
 
@@ -35,6 +38,6 @@ pub fn get_connection_port() -> u16 {
     let port = cli_parameter_arg(&args, vec!["--port".to_string(), "-p".to_string()]);
     match port {
         None => DEFAULT_PORT,
-        Some(p) => p
+        Some(p) => p,
     }
 }

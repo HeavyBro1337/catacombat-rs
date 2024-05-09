@@ -1,2 +1,2 @@
-pub mod netcode;
 pub mod config;
+pub mod netcode;

@@ -1,8 +1,8 @@
 use std::time::SystemTime;
 
-use catacombat_rs::*;
 use bevy_renet::RenetServerPlugin;
 use catacombat_rs::transport::ServerConfig;
+use catacombat_rs::*;
 use renet::transport::NetcodeServerTransport;
 
 fn main() {
@@ -22,7 +22,9 @@ fn main() {
 
     // Transport layer setup
     app.add_plugins(NetcodeServerPlugin);
-    let server_addr = ("0.0.0.0:".to_owned()+port.to_string().as_str()).parse().unwrap();
+    let server_addr = ("0.0.0.0:".to_owned() + port.to_string().as_str())
+        .parse()
+        .unwrap();
     let socket = UdpSocket::bind(server_addr).unwrap();
     let server_config = ServerConfig {
         current_time: SystemTime::now()

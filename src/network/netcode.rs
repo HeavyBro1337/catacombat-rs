@@ -1,5 +1,5 @@
-use bevy::{app::App, ecs::schedule::SystemSet};
 use bevy::prelude::*;
+use bevy::{app::App, ecs::schedule::SystemSet};
 use bevy_renet::client_connected;
 use renet::RenetClient;
 
@@ -25,7 +25,9 @@ fn add_netcode_network(app: &mut App, port: Option<u16>) {
 
     let server_addr = "127.0.0.1:5000".parse().unwrap();
     let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
-    let current_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    let current_time = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
     let client_id = current_time.as_millis() as u64;
     let authentication = ClientAuthentication::Unsecure {
         client_id,
@@ -39,6 +41,4 @@ fn add_netcode_network(app: &mut App, port: Option<u16>) {
     app.insert_resource(client);
     app.insert_resource(transport);
     app.insert_resource(CurrentClientId(client_id));
-
-
 }
