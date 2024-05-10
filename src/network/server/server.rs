@@ -1,8 +1,5 @@
-use bevy::{
-    prelude::*,
-    utils::hashbrown::{HashMap, HashSet},
-};
-use renet::{Bytes, DefaultChannel, RenetServer, ServerEvent};
+use bevy::{prelude::*, utils::hashbrown::HashSet};
+use renet::{DefaultChannel, RenetServer, ServerEvent};
 
 use crate::WorldCatacomb;
 

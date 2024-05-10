@@ -1,6 +1,6 @@
 use bevy::math::IVec2;
 use bevy::prelude::*;
-use bevy_sprite3d::{Sprite3d, Sprite3dBundle, Sprite3dComponent, Sprite3dParams};
+use bevy_sprite3d::{Sprite3d, Sprite3dBundle, Sprite3dParams};
 use serde::{Deserialize, Serialize};
 
 use crate::gen::location::WorldCatacomb;

@@ -1,15 +1,14 @@
 use std::net::UdpSocket;
 use std::time::SystemTime;
 
+use bevy::ecs::schedule::SystemSet;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashSet;
-use bevy::{app::App, ecs::schedule::SystemSet};
-use bevy_renet::client_connected;
+
 use bevy_sprite3d::Sprite3dParams;
 use renet::transport::{ClientAuthentication, NetcodeClientTransport};
-use renet::{ConnectionConfig, DefaultChannel, RenetClient, ServerEvent};
+use renet::{ConnectionConfig, DefaultChannel, RenetClient};
 
-use crate::network::config::connection_config;
 use crate::{GameState, PlayerBundle, ServerMessages, WorldCatacomb};
 
 pub const PROTOCOL_ID: u64 = 1337;
@@ -72,10 +71,10 @@ pub fn client_listen_event(
     asset_server: Res<AssetServer>,
 ) {
     let image: &Handle<Image> = &asset_server.load("sprites/doomguy.png");
-    while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered)  {
+    while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered) {
         let server_message = bincode::deserialize(&message).unwrap();
         match server_message {
-            ServerMessages::PlayerConnected(id) => {
+            ServerMessages::PlayerConnected(_id) => {
                 commands.spawn(PlayerBundle::new(image, &mut sprite_params));
             }
             ServerMessages::PlayerDisconnected(id) => {

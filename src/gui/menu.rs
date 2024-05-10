@@ -1,5 +1,5 @@
 use bevy::ecs::component::Component;
-use bevy::ecs::event::Events;
+
 use bevy::prelude::DespawnRecursiveExt;
 use bevy::ui::{BorderColor, UiRect};
 use bevy::{
@@ -17,7 +17,7 @@ use bevy::{
     ui::{
         node_bundles::{ButtonBundle, NodeBundle, TextBundle},
         widget::Button,
-        BackgroundColor, Interaction, Node, Style, Val,
+        Interaction, Node, Style, Val,
     },
     utils::default,
 };
@@ -118,7 +118,7 @@ fn despawn_menu(mut commands: Commands, q_nodes: Query<Entity, With<Node>>) {
 }
 
 fn singleplayer_button(
-    q_button: Query<&Interaction, (Changed<Interaction>, With<(SinglePlayerButton)>)>,
+    q_button: Query<&Interaction, (Changed<Interaction>, With<SinglePlayerButton>)>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     for interaction in &q_button {
@@ -132,7 +132,7 @@ fn singleplayer_button(
 }
 
 fn connect_button(
-    q_button: Query<&Interaction, (Changed<Interaction>, With<(ConnectButton)>)>,
+    q_button: Query<&Interaction, (Changed<Interaction>, With<ConnectButton>)>,
     q_ip_addr_input: Query<&TextInputValue, With<InputIpAddress>>,
     mut game_state: ResMut<NextState<GameState>>,
     mut multiplayer_state: ResMut<NextState<NetworkState>>,

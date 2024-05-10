@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::ecs::component::Component;
-use renet::{ChannelConfig, ClientId, ConnectionConfig, DisconnectReason, SendType};
+use renet::{ChannelConfig, ConnectionConfig, SendType};
 use serde::{Deserialize, Serialize};
 
 pub const DEFAULT_PORT: u16 = 5000;
@@ -14,7 +14,7 @@ pub enum ClientChannel {
 #[derive(Debug, Component, Serialize, Deserialize)]
 pub enum ServerMessages {
     PlayerConnected(u64),
-    PlayerDisconnected(u64)
+    PlayerDisconnected(u64),
 }
 
 impl ClientChannel {
