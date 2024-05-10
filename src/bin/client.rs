@@ -24,6 +24,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugins(RenetClientPlugin)
+        .add_plugins(NetcodeClientPlugin)
         // .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(MainMenuPlugin)
         .register_type::<PlayerLocation>()

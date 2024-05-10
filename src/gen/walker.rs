@@ -71,16 +71,18 @@ pub fn destroy_walker_generators(q_walkers: Query<(Entity, &Walker)>, mut comman
 }
 
 pub fn setup_walkers(mut commands: Commands) {
+    print!("Setting up random walkers...");
     for _ in 0..4 {
         commands.spawn(Walker::new(default()));
     }
+    println!(" Done!");
 }
 
 pub fn check_walkers(
     q_walkers: Query<Entity, With<Walker>>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    if q_walkers.iter().len() > 0 {
+    if !q_walkers.is_empty() {
         return;
     }
     info!("Done generating...");

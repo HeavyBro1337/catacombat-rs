@@ -1,9 +1,14 @@
+use std::net::UdpSocket;
+use std::time::SystemTime;
+
 use bevy::prelude::*;
 use bevy::{app::App, ecs::schedule::SystemSet};
 use bevy_renet::client_connected;
-use renet::RenetClient;
+use renet::transport::{ClientAuthentication, NetcodeClientTransport};
+use renet::{ConnectionConfig, DefaultChannel, RenetClient};
 
 use crate::network::config::connection_config;
+use crate::WorldCatacomb;
 
 pub const PROTOCOL_ID: u64 = 1337;
 
@@ -13,17 +18,8 @@ struct Connected;
 #[derive(Debug, Resource)]
 struct CurrentClientId(u64);
 
-fn add_netcode_network(app: &mut App, port: Option<u16>) {
-    use bevy_renet::renet::transport::{ClientAuthentication, NetcodeClientTransport};
-    use std::{net::UdpSocket, time::SystemTime};
-
-    app.add_plugins(bevy_renet::transport::NetcodeClientPlugin);
-
-    app.configure_sets(Update, Connected.run_if(client_connected));
-
-    let client = RenetClient::new(connection_config());
-
-    let server_addr = "127.0.0.1:5000".parse().unwrap();
+fn new_renet_client(addr: &String) -> (RenetClient, NetcodeClientTransport) {
+    let server_addr = addr.parse().unwrap();
     let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
@@ -37,8 +33,17 @@ fn add_netcode_network(app: &mut App, port: Option<u16>) {
     };
 
     let transport = NetcodeClientTransport::new(current_time, authentication, socket).unwrap();
+    let client = RenetClient::new(ConnectionConfig::default());
 
-    app.insert_resource(client);
-    app.insert_resource(transport);
-    app.insert_resource(CurrentClientId(client_id));
+    (client, transport)
+}
+
+pub fn init_client(commands: &mut Commands, addr: &String) {
+    let (client, transport) = new_renet_client(addr);
+    commands.insert_resource(client);
+    commands.insert_resource(transport);
+}
+
+pub fn sync_world_catacomb(mut client: ResMut<RenetClient>, mut location: ResMut<WorldCatacomb>) {
+    while let Some(bytes) = client.receive_message(DefaultChannel::ReliableOrdered) {}
 }

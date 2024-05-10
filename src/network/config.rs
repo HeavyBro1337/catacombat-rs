@@ -38,7 +38,6 @@ impl From<ClientChannel> for u8 {
         }
     }
 }
-
 pub enum ServerChannel {
     ServerMessages,
     NetworkedEntities,
