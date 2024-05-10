@@ -39,13 +39,8 @@ fn main() {
     let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
     app.insert_resource(transport);
     app.add_systems(Update, server_listen_event);
-    app.add_systems(Startup, setup_walkers).add_systems(
-        Update,
-        (
-            walk_walker_generators,
-            destroy_walker_generators,
-            check_walkers,
-        ),
-    );
+    app.insert_resource(WorldCatacomb::default())
+        .add_systems(Startup, setup_walkers)
+        .add_systems(Update, (walk_walker_generators, destroy_walker_generators));
     app.run();
 }

@@ -25,12 +25,12 @@ fn main() {
         )
         .add_plugins(RenetClientPlugin)
         .add_plugins(NetcodeClientPlugin)
-        // .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(MainMenuPlugin)
         .register_type::<PlayerLocation>()
+        .insert_resource(WorldCatacomb::default())
         .init_state::<GameState>()
         .init_state::<NetworkState>()
-        .insert_resource(WorldCatacomb::default())
         .add_systems(
             OnEnter(GameState::Generating),
             setup_walkers.run_if(in_state(NetworkState::Offline)),
@@ -43,11 +43,28 @@ fn main() {
                 destroy_walker_generators,
                 check_walkers,
             )
-                .run_if(in_state(GameState::Generating)),
+                .run_if(in_state(GameState::Generating))
+                .run_if(in_state(NetworkState::Offline)),
+        )
+        .add_systems(
+            Update,
+            (sync_world_catacomb_from_server)
+                .run_if(in_state(GameState::Generating))
+                .run_if(in_state(NetworkState::Online)),
+        )
+        .add_systems(
+            Update,
+            (client_listen_event)
+                .run_if(in_state(GameState::Game))
+                .run_if(in_state(NetworkState::Online)),
         )
         .add_systems(
             Update,
             (sync_camera, move_player).run_if(in_state(GameState::Game)),
+        )
+        .add_systems(
+            OnEnter(GameState::Game),
+            (setup_rooms).chain().run_if(in_state(NetworkState::Online)),
         )
         .add_systems(
             OnEnter(GameState::Game),

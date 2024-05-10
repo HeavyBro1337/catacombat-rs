@@ -2,13 +2,15 @@ use std::net::UdpSocket;
 use std::time::SystemTime;
 
 use bevy::prelude::*;
+use bevy::utils::hashbrown::HashSet;
 use bevy::{app::App, ecs::schedule::SystemSet};
 use bevy_renet::client_connected;
+use bevy_sprite3d::Sprite3dParams;
 use renet::transport::{ClientAuthentication, NetcodeClientTransport};
-use renet::{ConnectionConfig, DefaultChannel, RenetClient};
+use renet::{ConnectionConfig, DefaultChannel, RenetClient, ServerEvent};
 
 use crate::network::config::connection_config;
-use crate::WorldCatacomb;
+use crate::{GameState, PlayerBundle, ServerMessages, WorldCatacomb};
 
 pub const PROTOCOL_ID: u64 = 1337;
 
@@ -44,6 +46,41 @@ pub fn init_client(commands: &mut Commands, addr: &String) {
     commands.insert_resource(transport);
 }
 
-pub fn sync_world_catacomb(mut client: ResMut<RenetClient>, mut location: ResMut<WorldCatacomb>) {
-    while let Some(bytes) = client.receive_message(DefaultChannel::ReliableOrdered) {}
+pub fn sync_world_catacomb_from_server(
+    mut client: ResMut<RenetClient>,
+    mut location: ResMut<WorldCatacomb>,
+    mut state: ResMut<NextState<GameState>>,
+) {
+    while let Some(bytes) = client.receive_message(DefaultChannel::ReliableOrdered) {
+        let world_catacomb: HashSet<[i32; 2]> = bincode::deserialize(&bytes).unwrap();
+        location.0 = world_catacomb
+            .iter()
+            .map(|x| {
+                dbg!(x);
+                IVec2::from_array(*x)
+            })
+            .collect();
+
+        state.set(GameState::Game);
+    }
+}
+
+pub fn client_listen_event(
+    mut commands: Commands,
+    mut client: ResMut<RenetClient>,
+    mut sprite_params: Sprite3dParams,
+    asset_server: Res<AssetServer>,
+) {
+    let image: &Handle<Image> = &asset_server.load("sprites/doomguy.png");
+    while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered)  {
+        let server_message = bincode::deserialize(&message).unwrap();
+        match server_message {
+            ServerMessages::PlayerConnected(id) => {
+                commands.spawn(PlayerBundle::new(image, &mut sprite_params));
+            }
+            ServerMessages::PlayerDisconnected(id) => {
+                println!("Client with id {} disconnected", id)
+            }
+        }
+    }
 }

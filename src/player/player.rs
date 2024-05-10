@@ -1,5 +1,7 @@
 use bevy::math::IVec2;
 use bevy::prelude::*;
+use bevy_sprite3d::{Sprite3d, Sprite3dBundle, Sprite3dComponent, Sprite3dParams};
+use serde::{Deserialize, Serialize};
 
 use crate::gen::location::WorldCatacomb;
 
@@ -7,6 +9,30 @@ use crate::gen::location::WorldCatacomb;
 pub struct PlayerLocation {
     location: IVec2,
     forward: IVec2,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct PlayerLocationNetwork {
+    location: [i32; 2],
+    forward: [i32; 2],
+}
+
+impl Into<PlayerLocation> for PlayerLocationNetwork {
+    fn into(self) -> PlayerLocation {
+        PlayerLocation {
+            location: IVec2::from_array(self.location),
+            forward: IVec2::from_array(self.forward),
+        }
+    }
+}
+
+impl Into<PlayerLocationNetwork> for PlayerLocation {
+    fn into(self) -> PlayerLocationNetwork {
+        PlayerLocationNetwork {
+            location: self.location.to_array(),
+            forward: self.forward.to_array(),
+        }
+    }
 }
 
 pub enum Turn {
@@ -57,5 +83,31 @@ impl PlayerLocation {
         }
 
         self.location += self.forward;
+    }
+}
+
+#[derive(Component)]
+pub struct OtherPlayer;
+
+#[derive(Bundle)]
+pub struct PlayerBundle {
+    sprite: Sprite3dBundle,
+    location: PlayerLocation,
+    other_player: OtherPlayer,
+}
+
+impl PlayerBundle {
+    pub fn new(image: &Handle<Image>, sprite_params: &mut Sprite3dParams) -> Self {
+        Self {
+            sprite: Sprite3d {
+                image: image.clone(),
+                alpha_mode: AlphaMode::Blend,
+                pixels_per_metre: 400.,
+                ..default()
+            }
+            .bundle(sprite_params),
+            other_player: OtherPlayer,
+            location: PlayerLocation::new(),
+        }
     }
 }
