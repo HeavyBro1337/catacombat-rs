@@ -1,9 +1,10 @@
 use bevy::ecs::component::Component;
 
+use bevy::ecs::schedule::OnEnter;
 use bevy::prelude::DespawnRecursiveExt;
 use bevy::ui::{BorderColor, UiRect};
 use bevy::{
-    app::{Plugin, Startup, Update},
+    app::{Plugin, Update},
     asset::{AssetServer, Handle},
     ecs::{
         entity::Entity,
@@ -29,7 +30,7 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_plugins(TextInputPlugin);
-        app.add_systems(Startup, setup_menu);
+        app.add_systems(OnEnter(GameState::Menu), setup_menu);
         app.add_systems(OnExit(GameState::Menu), despawn_menu);
         app.add_systems(
             Update,

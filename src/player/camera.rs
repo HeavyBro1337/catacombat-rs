@@ -3,8 +3,7 @@ use std::f32::consts::PI;
 use bevy::{
     core_pipeline::core_3d::Camera3dBundle,
     ecs::{
-        entity::Entity,
-        system::{Commands, Query, Res},
+        entity::Entity, query::{With, Without}, system::{Commands, Query, Res}
     },
     math::{Quat, Vec3},
     pbr::{FogFalloff, FogSettings},
@@ -15,7 +14,7 @@ use bevy::{
 };
 use bevy_flycam::FlyCam;
 
-use crate::{room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane};
+use crate::{room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane, OtherPlayer};
 
 use super::player::PlayerLocation;
 
@@ -51,7 +50,7 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera)>) {
 }
 
 pub fn sync_camera(
-    q_player: Query<&PlayerLocation>,
+    q_player: Query<&PlayerLocation, Without<OtherPlayer>>,
     mut q_camera: Query<(&mut Transform, &Camera)>,
     time: Res<Time>,
 ) {
@@ -73,4 +72,29 @@ pub fn sync_camera(
         Quat::from_rotation_y(angle - PI / 2.0),
         time.delta_seconds() * LERP_SPEED,
     )
+}
+
+
+pub fn sync_player_sprites(
+    mut q_players: Query<(&PlayerLocation, &mut Transform), With<OtherPlayer>>,
+    time: Res<Time>,
+) {
+    const LERP_SPEED: f32 = 10.0;
+
+    for (loc, mut transform) in q_players.iter_mut() {
+        let forward = loc.get_forward().as_vec2();
+        let location = loc.get_location();
+        let angle = forward.to_angle();
+        
+        let mut final_translation = convert_ivec2_to_vec3_plane(location) * F32_ROOM_SIZE;
+        final_translation.y = CAMERA_HEIGHT;
+    
+        transform.translation = transform
+            .translation
+            .lerp(final_translation, time.delta_seconds() * LERP_SPEED);
+        transform.rotation = transform.rotation.lerp(
+            Quat::from_rotation_y(angle - PI / 2.0),
+            time.delta_seconds() * LERP_SPEED,
+        );
+    }
 }

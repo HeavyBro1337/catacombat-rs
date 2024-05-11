@@ -1,3 +1,4 @@
+use bevy_sprite3d::Sprite3dPlugin;
 use catacombat_rs::*;
 
 pub use bevy::diagnostic::*;
@@ -9,21 +10,23 @@ fn main() {
     App::new()
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_systems(PreStartup, setup_loading)
         // .add_plugins(PlayerPlugin)
         .add_plugins(
             DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        title: "Catacombat".to_string(),
-                        resolution: WindowResolution::new(1024.0, 600.0),
-                        present_mode: bevy::window::PresentMode::Immediate,
-                        ..default()
-                    }),
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Catacombat".to_string(),
+                    resolution: WindowResolution::new(1024.0, 600.0),
+                    present_mode: bevy::window::PresentMode::Immediate,
+                    ..default()
+                }),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugins(RenetClientPlugin)
+        .add_plugins(Sprite3dPlugin)
         .add_plugins(NetcodeClientPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(MainMenuPlugin)
@@ -31,6 +34,7 @@ fn main() {
         .insert_resource(WorldCatacomb::default())
         .init_state::<GameState>()
         .init_state::<NetworkState>()
+        .add_systems(Update, check_assets_ready.run_if(in_state(GameState::Loading)))
         .add_systems(
             OnEnter(GameState::Generating),
             setup_walkers.run_if(in_state(NetworkState::Offline)),
@@ -54,7 +58,7 @@ fn main() {
         )
         .add_systems(
             Update,
-            (client_listen_event)
+            (client_listen_event, sync_other_player_positions, sync_player_sprites)
                 .run_if(in_state(GameState::Game))
                 .run_if(in_state(NetworkState::Online)),
         )

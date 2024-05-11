@@ -5,6 +5,7 @@ pub mod player;
 pub mod room;
 pub mod state;
 pub mod utils;
+pub mod loading;
 
 pub use std::net::UdpSocket;
 
@@ -26,3 +27,4 @@ pub use network::config::*;
 pub use room::mesh::*;
 pub use state::*;
 pub use utils::utils::*;
+pub use loading::loading::*;

@@ -48,6 +48,16 @@ impl PlayerLocation {
         }
     }
 
+    pub fn as_remote(&self) -> PlayerLocationNetwork {
+        PlayerLocationNetwork { location: self.location.to_array(), forward: self.forward.to_array() }
+    }
+
+    pub fn sync(&mut self, remote: PlayerLocationNetwork) {
+        let into: Self = Into::<Self>::into(remote);
+        self.forward = into.forward;
+        self.location = into.location;
+    }
+
     pub fn get_forward(&self) -> IVec2 {
         self.forward
     }
@@ -87,7 +97,10 @@ impl PlayerLocation {
 }
 
 #[derive(Component)]
-pub struct OtherPlayer;
+pub struct OtherPlayer(pub u64);
+
+#[derive(Component)]
+pub struct OwnerId(pub u64);
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
@@ -97,16 +110,17 @@ pub struct PlayerBundle {
 }
 
 impl PlayerBundle {
-    pub fn new(image: &Handle<Image>, sprite_params: &mut Sprite3dParams) -> Self {
+    pub fn new(image: &Handle<Image>, sprite_params: &mut Sprite3dParams, id: u64) -> Self {
         Self {
             sprite: Sprite3d {
                 image: image.clone(),
                 alpha_mode: AlphaMode::Blend,
-                pixels_per_metre: 400.,
+                pixels_per_metre: 16.,
+                pivot: Some(Vec2::new(0.5, 1.0)),
                 ..default()
             }
             .bundle(sprite_params),
-            other_player: OtherPlayer,
+            other_player: OtherPlayer(id),
             location: PlayerLocation::new(),
         }
     }
