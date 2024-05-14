@@ -2,16 +2,19 @@ use bevy::{
     prelude::*,
     utils::hashbrown::{HashMap, HashSet},
 };
-use renet::{ClientId, DefaultChannel, RenetServer, ServerEvent};
+use renet::{ClientId, RenetServer, ServerEvent};
 
-use crate::{ClientChannel, OtherPlayer, PlayerLocation, PlayerLocationNetwork, ServerChannel, ServerMessages, WorldCatacomb};
+use crate::{
+    ClientChannel, OtherPlayer, PlayerLocation, PlayerLocationNetwork, ServerChannel,
+    ServerMessages, WorldCatacomb,
+};
 
 pub fn server_listen_event(
     mut server_events: EventReader<ServerEvent>,
     mut server: ResMut<RenetServer>,
     mut commands: Commands,
     location: Res<WorldCatacomb>,
-    q_player_entities: Query<(Entity, &OtherPlayer)>
+    q_player_entities: Query<(Entity, &OtherPlayer)>,
 ) {
     for event in server_events.read() {
         match event {
@@ -19,7 +22,10 @@ pub fn server_listen_event(
                 println!("Client with id {} connected", client_id);
                 println!("Sending world info...");
                 let channel_id = ServerChannel::GenerationMessage;
-                let player_ids = q_player_entities.iter().map(|(_, id)|id.0).collect::<Vec<_>>();
+                let player_ids = q_player_entities
+                    .iter()
+                    .map(|(_, id)| id.0)
+                    .collect::<Vec<_>>();
                 let array_locs = location
                     .0
                     .iter()
@@ -27,12 +33,11 @@ pub fn server_listen_event(
                     .collect::<HashSet<[i32; 2]>>();
                 let message = bincode::serialize(&(array_locs, player_ids)).unwrap();
                 server.send_message(*client_id, channel_id, message);
-                
+
                 commands.spawn((OtherPlayer(client_id.raw()), PlayerLocation::new()));
-                
+
                 let player_connected = ServerMessages::PlayerConnected(client_id.raw());
-                let server_event_message =
-                    bincode::serialize(&player_connected).unwrap();
+                let server_event_message = bincode::serialize(&player_connected).unwrap();
                 server.broadcast_message_except(
                     *client_id,
                     ServerChannel::ServerMessages,
@@ -49,8 +54,7 @@ pub fn server_listen_event(
                 }
 
                 let player_disconnected = ServerMessages::PlayerDisconnected(client_id.raw());
-                let server_event_message =
-                    bincode::serialize(&player_disconnected).unwrap();
+                let server_event_message = bincode::serialize(&player_disconnected).unwrap();
                 server.broadcast_message_except(
                     *client_id,
                     ServerChannel::ServerMessages,

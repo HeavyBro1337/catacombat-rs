@@ -1,7 +1,9 @@
 use std::time::SystemTime;
 
 use bevy_renet::RenetServerPlugin;
-use catacombat_rs::network::server::server::{server_listen_event, server_receive_position, server_sync_positions};
+use catacombat_rs::network::server::server::{
+    server_listen_event, server_receive_position, server_sync_positions,
+};
 use catacombat_rs::transport::ServerConfig;
 use catacombat_rs::*;
 use renet::transport::NetcodeServerTransport;
@@ -38,11 +40,14 @@ fn main() {
     };
     let transport = NetcodeServerTransport::new(server_config, socket).unwrap();
     app.insert_resource(transport);
-    app.add_systems(Update, (
-        server_listen_event,
-        server_receive_position, 
-        server_sync_positions
-    ));
+    app.add_systems(
+        Update,
+        (
+            server_listen_event,
+            server_receive_position,
+            server_sync_positions,
+        ),
+    );
     app.insert_resource(WorldCatacomb::default())
         .add_systems(Startup, setup_walkers)
         .add_systems(Update, (walk_walker_generators, destroy_walker_generators));

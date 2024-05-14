@@ -9,7 +9,7 @@ pub const DEFAULT_PORT: u16 = 5000;
 pub enum ClientChannel {
     Input,
     Command,
-    SyncPositions
+    SyncPositions,
 }
 
 #[derive(Debug, Component, Serialize, Deserialize)]
@@ -84,7 +84,7 @@ impl ServerChannel {
                 send_type: SendType::ReliableOrdered {
                     resend_time: Duration::from_millis(200),
                 },
-            }
+            },
         ]
     }
 }
