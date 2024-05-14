@@ -49,7 +49,10 @@ impl PlayerLocation {
     }
 
     pub fn as_remote(&self) -> PlayerLocationNetwork {
-        PlayerLocationNetwork { location: self.location.to_array(), forward: self.forward.to_array() }
+        PlayerLocationNetwork {
+            location: self.location.to_array(),
+            forward: self.forward.to_array(),
+        }
     }
 
     pub fn sync(&mut self, remote: PlayerLocationNetwork) {

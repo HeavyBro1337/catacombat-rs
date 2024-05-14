@@ -17,6 +17,7 @@ pub fn setup_rooms(
     mut assets: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    println!("Setting up rooms");
     for loc in location.0.iter() {
         let mesh = generate_floor(&mut assets);
         commands.spawn(PbrBundle {

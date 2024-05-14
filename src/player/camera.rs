@@ -3,7 +3,9 @@ use std::f32::consts::PI;
 use bevy::{
     core_pipeline::core_3d::Camera3dBundle,
     ecs::{
-        entity::Entity, query::{With, Without}, system::{Commands, Query, Res}
+        entity::Entity,
+        query::{With, Without},
+        system::{Commands, Query, Res},
     },
     math::{Quat, Vec3},
     pbr::{FogFalloff, FogSettings},
@@ -74,8 +76,7 @@ pub fn sync_camera(
     )
 }
 
-
-pub fn sync_player_sprites(
+pub fn set_player_sprite_positions(
     mut q_players: Query<(&PlayerLocation, &mut Transform), With<OtherPlayer>>,
     time: Res<Time>,
 ) {
@@ -85,10 +86,10 @@ pub fn sync_player_sprites(
         let forward = loc.get_forward().as_vec2();
         let location = loc.get_location();
         let angle = forward.to_angle();
-        
+
         let mut final_translation = convert_ivec2_to_vec3_plane(location) * F32_ROOM_SIZE;
         final_translation.y = CAMERA_HEIGHT;
-    
+
         transform.translation = transform
             .translation
             .lerp(final_translation, time.delta_seconds() * LERP_SPEED);

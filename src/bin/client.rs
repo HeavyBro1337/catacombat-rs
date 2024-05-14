@@ -14,13 +14,13 @@ fn main() {
         // .add_plugins(PlayerPlugin)
         .add_plugins(
             DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    title: "Catacombat".to_string(),
-                    resolution: WindowResolution::new(1024.0, 600.0),
-                    present_mode: bevy::window::PresentMode::Immediate,
-                    ..default()
-                }),
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Catacombat".to_string(),
+                        resolution: WindowResolution::new(1024.0, 600.0),
+                        present_mode: bevy::window::PresentMode::Immediate,
+                        ..default()
+                    }),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
@@ -34,7 +34,10 @@ fn main() {
         .insert_resource(WorldCatacomb::default())
         .init_state::<GameState>()
         .init_state::<NetworkState>()
-        .add_systems(Update, check_assets_ready.run_if(in_state(GameState::Loading)))
+        .add_systems(
+            Update,
+            check_assets_ready.run_if(in_state(GameState::Loading)),
+        )
         .add_systems(
             OnEnter(GameState::Generating),
             setup_walkers.run_if(in_state(NetworkState::Offline)),
@@ -58,7 +61,11 @@ fn main() {
         )
         .add_systems(
             Update,
-            (client_listen_event, sync_other_player_positions, sync_player_sprites)
+            (
+                // client_listen_event,
+                // sync_other_player_positions,
+                set_player_sprite_positions,
+            )
                 .run_if(in_state(GameState::Game))
                 .run_if(in_state(NetworkState::Online)),
         )
@@ -67,12 +74,8 @@ fn main() {
             (sync_camera, move_player).run_if(in_state(GameState::Game)),
         )
         .add_systems(
-            OnEnter(GameState::Game),
-            (setup_rooms).chain().run_if(in_state(NetworkState::Online)),
-        )
-        .add_systems(
-            OnEnter(GameState::Game),
-            setup_rooms.run_if(in_state(NetworkState::Offline)),
+            OnExit(GameState::Generating),
+            setup_rooms,
         )
         .run();
 }

@@ -49,14 +49,12 @@ impl From<ClientChannel> for u8 {
 pub enum ServerChannel {
     ServerMessages,
     NetworkedEntities,
+    GenerationMessage,
 }
 
 impl From<ServerChannel> for u8 {
     fn from(channel_id: ServerChannel) -> Self {
-        match channel_id {
-            ServerChannel::NetworkedEntities => 0,
-            ServerChannel::ServerMessages => 1,
-        }
+        channel_id as u8
     }
 }
 
@@ -75,6 +73,13 @@ impl ServerChannel {
                     resend_time: Duration::from_millis(200),
                 },
             },
+            ChannelConfig {
+                channel_id: Self::GenerationMessage.into(),
+                max_memory_usage_bytes: 10 * 1024 * 1024,
+                send_type: SendType::ReliableOrdered {
+                    resend_time: Duration::from_millis(200),
+                },
+            }
         ]
     }
 }

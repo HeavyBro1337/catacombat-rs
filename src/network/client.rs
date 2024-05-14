@@ -10,7 +10,9 @@ use bevy_sprite3d::Sprite3dParams;
 use renet::transport::{ClientAuthentication, NetcodeClientTransport};
 use renet::{ConnectionConfig, DefaultChannel, RenetClient};
 
-use crate::{GameState, OtherPlayer, PlayerBundle, PlayerLocation, PlayerLocationNetwork, ServerMessages, WorldCatacomb};
+use crate::{
+    connection_config, GameState, OtherPlayer, PlayerBundle, PlayerLocation, PlayerLocationNetwork, ServerChannel, ServerMessages, WorldCatacomb
+};
 
 pub const PROTOCOL_ID: u64 = 1337;
 
@@ -22,7 +24,7 @@ struct CurrentClientId(u64);
 
 fn new_renet_client(addr: &String) -> (RenetClient, NetcodeClientTransport) {
     let server_addr = addr.parse().unwrap();
-    let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+    let socket = UdpSocket::bind("0.0.0.0:0").unwrap();
     let current_time = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap();
@@ -35,7 +37,7 @@ fn new_renet_client(addr: &String) -> (RenetClient, NetcodeClientTransport) {
     };
 
     let transport = NetcodeClientTransport::new(current_time, authentication, socket).unwrap();
-    let client = RenetClient::new(ConnectionConfig::default());
+    let client = RenetClient::new(connection_config());
 
     (client, transport)
 }
@@ -51,16 +53,15 @@ pub fn sync_world_catacomb_from_server(
     mut location: ResMut<WorldCatacomb>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    while let Some(bytes) = client.receive_message(DefaultChannel::ReliableOrdered) {
-        let world_catacomb: HashSet<[i32; 2]> = bincode::deserialize(&bytes).unwrap();
+    while let Some(message) = client.receive_message(ServerChannel::GenerationMessage) {
+        let world_catacomb: HashSet<[i32; 2]> = bincode::deserialize(&message).unwrap();
         location.0 = world_catacomb
             .iter()
             .map(|x| {
-                dbg!(x);
                 IVec2::from_array(*x)
             })
             .collect();
-
+        dbg!(&location.0);
         state.set(GameState::Game);
     }
 }
@@ -77,9 +78,9 @@ pub fn client_listen_event(
         match server_message {
             ServerMessages::PlayerConnected(id) => {
                 commands.spawn(PlayerBundle::new(image, &mut sprite_params, id));
-            }
+            },
             ServerMessages::PlayerDisconnected(id) => {
-                println!("Client with id {} disconnected", id)
+                println!("Client with id {} disconnected :DDD", id)
             }
         }
     }
@@ -87,23 +88,23 @@ pub fn client_listen_event(
 
 pub fn sync_other_player_positions(
     mut client: ResMut<RenetClient>,
-    mut q_other_players: Query<(&mut PlayerLocation, &OtherPlayer)>
+    mut q_other_players: Query<(&mut PlayerLocation, &OtherPlayer)>,
 ) {
-    
     for (mut loc, id) in q_other_players.iter_mut() {
         while let Some(message) = client.receive_message(DefaultChannel::ReliableOrdered) {
-            let (remote_loc, remote_id): (PlayerLocationNetwork, u64) = bincode::deserialize(&message).unwrap();
-            
+            let (remote_loc, remote_id): (PlayerLocationNetwork, u64) =
+                bincode::deserialize(&message).unwrap();
+
             if id.0 == remote_id {
                 loc.sync(remote_loc);
             }
-        }  
+        }
     }
 }
 
 pub fn sync_own_player_position(
     mut client: ResMut<RenetClient>,
-    q_player: Query<&PlayerLocation, Without<OtherPlayer>>
+    q_player: Query<&PlayerLocation, Without<OtherPlayer>>,
 ) {
     let loc = q_player.single();
     let loc_network = loc.as_remote();
