@@ -5,34 +5,16 @@ use serde::{Deserialize, Serialize};
 
 use crate::gen::location::WorldCatacomb;
 
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Debug)]
 pub struct PlayerLocation {
     location: IVec2,
     forward: IVec2,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct PlayerLocationNetwork {
     location: [i32; 2],
     forward: [i32; 2],
-}
-
-impl Into<PlayerLocation> for PlayerLocationNetwork {
-    fn into(self) -> PlayerLocation {
-        PlayerLocation {
-            location: IVec2::from_array(self.location),
-            forward: IVec2::from_array(self.forward),
-        }
-    }
-}
-
-impl Into<PlayerLocationNetwork> for PlayerLocation {
-    fn into(self) -> PlayerLocationNetwork {
-        PlayerLocationNetwork {
-            location: self.location.to_array(),
-            forward: self.forward.to_array(),
-        }
-    }
 }
 
 pub enum Turn {
@@ -55,10 +37,9 @@ impl PlayerLocation {
         }
     }
 
-    pub fn sync(&mut self, remote: PlayerLocationNetwork) {
-        let into: Self = Into::<Self>::into(remote);
-        self.forward = into.forward;
-        self.location = into.location;
+    pub fn sync(&mut self, remote: &PlayerLocationNetwork) {
+        self.forward = IVec2::from_array(remote.forward);
+        self.location = IVec2::from_array(remote.location);
     }
 
     pub fn get_forward(&self) -> IVec2 {

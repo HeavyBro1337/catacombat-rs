@@ -62,9 +62,10 @@ fn main() {
         .add_systems(
             Update,
             (
-                // client_listen_event,
-                // sync_other_player_positions,
+                client_listen_event,
+                sync_other_player_positions,
                 set_player_sprite_positions,
+                sync_own_player_position
             )
                 .run_if(in_state(GameState::Game))
                 .run_if(in_state(NetworkState::Online)),

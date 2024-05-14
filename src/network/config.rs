@@ -9,6 +9,7 @@ pub const DEFAULT_PORT: u16 = 5000;
 pub enum ClientChannel {
     Input,
     Command,
+    SyncPositions
 }
 
 #[derive(Debug, Component, Serialize, Deserialize)]
@@ -34,21 +35,25 @@ impl ClientChannel {
                     resend_time: Duration::ZERO,
                 },
             },
+            ChannelConfig {
+                channel_id: Self::SyncPositions.into(),
+                max_memory_usage_bytes: 5 * 1024 * 1024,
+                send_type: SendType::ReliableOrdered {
+                    resend_time: Duration::from_millis(300),
+                },
+            },
         ]
     }
 }
 
 impl From<ClientChannel> for u8 {
     fn from(channel_id: ClientChannel) -> Self {
-        match channel_id {
-            ClientChannel::Command => 0,
-            ClientChannel::Input => 1,
-        }
+        channel_id as u8
     }
 }
 pub enum ServerChannel {
     ServerMessages,
-    NetworkedEntities,
+    SyncPositions,
     GenerationMessage,
 }
 
@@ -62,7 +67,7 @@ impl ServerChannel {
     pub fn channels_config() -> Vec<ChannelConfig> {
         vec![
             ChannelConfig {
-                channel_id: Self::NetworkedEntities.into(),
+                channel_id: Self::SyncPositions.into(),
                 max_memory_usage_bytes: 10 * 1024 * 1024,
                 send_type: SendType::Unreliable,
             },
