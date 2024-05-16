@@ -99,8 +99,8 @@ impl PlayerBundle {
             sprite: Sprite3d {
                 image: image.clone(),
                 alpha_mode: AlphaMode::Blend,
-                pixels_per_metre: 16.,
-                pivot: Some(Vec2::new(0.5, 1.0)),
+                pixels_per_metre: 32.,
+                pivot: Some(Vec2::new(0.5, 0.5)),
                 ..default()
             }
             .bundle(sprite_params),
