@@ -7,7 +7,6 @@ use bevy::prelude::*;
 use bevy::utils::hashbrown::{HashMap, HashSet};
 
 use bevy_sprite3d::Sprite3dParams;
-use renet::transport::{ClientAuthentication, NetcodeClientTransport};
 use renet::RenetClient;
 
 use crate::{

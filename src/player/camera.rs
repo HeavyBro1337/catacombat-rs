@@ -1,18 +1,11 @@
 use std::f32::consts::PI;
 
 use bevy::{
-    core_pipeline::core_3d::Camera3dBundle,
-    ecs::{
+    core_pipeline::core_3d::Camera3dBundle, ecs::{
         entity::Entity,
         query::{With, Without},
         system::{Commands, Query, Res},
-    },
-    math::{Quat, Vec3},
-    pbr::{FogFalloff, FogSettings},
-    render::{camera::Camera, color::Color},
-    time::Time,
-    transform::components::Transform,
-    utils::default,
+    }, math::{Quat, Vec3}, pbr::{DistanceFog, FogFalloff}, prelude::Camera3d, render::{camera::Camera, color::Color}, time::Time, transform::components::Transform, utils::default
 };
 use bevy_flycam::FlyCam;
 
@@ -28,20 +21,14 @@ pub fn setup_camera(mut commands: Commands, q_fly_cam: Query<&FlyCam>) {
     }
 
     commands.spawn((
-        Camera3dBundle {
-            transform: Transform {
-                translation: Vec3::new(F32_ROOM_SIZE / 2.0, CAMERA_HEIGHT, F32_ROOM_SIZE / 2.0),
-                ..default()
-            },
-            ..default()
-        },
+        Camera3d::default(),
         PlayerLocation::new(),
     ));
 }
 
 pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera)>) {
     let (entity, _) = q_camera.single();
-    commands.entity(entity).insert(FogSettings {
+    commands.entity(entity).insert(DistanceFog {
         color: Color::BLACK,
         falloff: FogFalloff::Linear {
             start: 5.0,
@@ -69,10 +56,10 @@ pub fn sync_camera(
 
     transform.translation = transform
         .translation
-        .lerp(final_translation, time.delta_seconds() * LERP_SPEED);
+        .lerp(final_translation, time.delta_secs() * LERP_SPEED);
     transform.rotation = transform.rotation.lerp(
         Quat::from_rotation_y(angle - PI / 2.0),
-        time.delta_seconds() * LERP_SPEED,
+        time.delta_secs() * LERP_SPEED,
     )
 }
 
