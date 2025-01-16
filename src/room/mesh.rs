@@ -1,24 +1,37 @@
 use std::f32::consts::PI;
 
-use bevy::{math::Affine2, prelude::*, render::render_resource::Texture, text::cosmic_text::{rustybuzz::script::JAVANESE, ttf_parser::loca}};
+use bevy::{
+    math::Affine2,
+    prelude::*,
+    render::render_resource::Texture,
+    text::cosmic_text::{rustybuzz::script::JAVANESE, ttf_parser::loca},
+};
 
 use crate::{gen::location::WorldCatacomb, utils::utils::convert_ivec2_to_vec3_plane};
 
-fn generate_mesh(assets: &mut ResMut<Assets<Mesh>>, y: f32) -> Handle<Mesh> {
+fn generate_floor_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
     use bevy::render::mesh::*;
 
-    assets.add(Cuboid::new(F32_ROOM_SIZE, y, F32_ROOM_SIZE).mesh())
-}
-
-fn generate_floor_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
-    generate_mesh(assets, 0.0)
+    assets.add(Cuboid::new(F32_ROOM_SIZE, 0.0, F32_ROOM_SIZE).mesh())
 }
 
 fn generate_wall_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
-    generate_mesh(assets, F32_ROOM_SIZE)
+    use bevy::render::mesh::*;
+
+    assets.add(Cuboid::new(F32_ROOM_SIZE, F32_ROOM_SIZE, F32_ROOM_SIZE).mesh())
 }
 
-const ROOM_SIZE: i32 = 4;
+fn new_material(texture: Handle<Image>, emission: Option<Handle<Image>>) -> StandardMaterial {
+    StandardMaterial {
+        base_color_texture: Some(texture),
+        emissive: if emission.is_some() { LinearRgba::WHITE } else { LinearRgba::BLACK },
+        emissive_texture: emission,
+        reflectance: 0.0,
+        ..default()
+    }
+}
+
+const ROOM_SIZE: i32 = 2;
 pub const F32_ROOM_SIZE: f32 = ROOM_SIZE as f32;
 
 pub fn setup_rooms(
@@ -34,10 +47,7 @@ pub fn setup_rooms(
         let mesh = generate_floor_mesh(&mut assets);
         commands.spawn((
             Mesh3d(mesh),
-            MeshMaterial3d(materials.add(StandardMaterial {
-                base_color_texture: Some(textures.load("textures/floor.png")),
-                ..default()
-            })),
+            MeshMaterial3d(materials.add(new_material(textures.load("textures/floor.png"), None))),
             Transform {
                 translation: convert_ivec2_to_vec3_plane(*loc) * F32_ROOM_SIZE,
                 ..default()
@@ -46,13 +56,10 @@ pub fn setup_rooms(
         // Ceiling
         let mesh = generate_floor_mesh(&mut assets);
         let mut translation = convert_ivec2_to_vec3_plane(*loc) * F32_ROOM_SIZE;
-        translation.y = F32_ROOM_SIZE / 2.0;
+        translation.y = F32_ROOM_SIZE;
         commands.spawn((
             Mesh3d(mesh),
-            MeshMaterial3d(materials.add(StandardMaterial {
-                base_color_texture: Some(textures.load("textures/floor.png")),
-                ..default()
-            })),
+            MeshMaterial3d(materials.add(new_material(textures.load("textures/floor.png"), None))),
             Transform {
                 translation,
                 ..default()
@@ -71,22 +78,21 @@ pub fn setup_walls(
     println!("Setting up walls");
 
     for loc in location.0.iter() {
-        
         for i in -1..2 {
             for j in -1..2 {
                 let loc = *loc + IVec2::from_array([i, j]);
                 if !location.0.contains(&loc) {
                     let mesh = generate_wall_mesh(&mut assets);
+                    let mut translation = convert_ivec2_to_vec3_plane(loc) * F32_ROOM_SIZE;
+                    translation.y = F32_ROOM_SIZE / 2.0;
                     commands.spawn((
                         Mesh3d(mesh),
-                        MeshMaterial3d(materials.add(StandardMaterial {
-                            base_color_texture: Some(textures.load("textures/wall.png")),
-                            emissive_texture: Some(textures.load("textures/wall_emission.png")),
-                            emissive: LinearRgba::WHITE,
-                            ..default()
-                        })),
+                        MeshMaterial3d(materials.add(new_material(
+                            textures.load("textures/wall.png"),
+                            Some(textures.load("textures/wall_emission.png")),
+                        ))),
                         Transform {
-                            translation: convert_ivec2_to_vec3_plane(loc) * F32_ROOM_SIZE,
+                            translation,
                             ..default()
                         },
                     ));

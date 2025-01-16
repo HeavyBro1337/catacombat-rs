@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{gen::location::WorldCatacomb};
+use crate::gen::location::WorldCatacomb;
 
 use super::player::{PlayerLocation, Turn};
 

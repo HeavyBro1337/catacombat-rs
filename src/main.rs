@@ -1,5 +1,9 @@
-use bevy_sprite3d::Sprite3dPlugin;
+use std::io;
+
+use audio::music::setup_background_music;
 use bevy::prelude::*;
+use bevy_rustysynth::RustySynthPlugin;
+use bevy_sprite3d::Sprite3dPlugin;
 
 mod gen;
 mod loading;
@@ -7,18 +11,19 @@ mod player;
 mod room;
 mod state;
 mod utils;
+mod audio;
 
 use bevy::diagnostic::*;
 use bevy::window::*;
 use bevy_inspector_egui::quick::*;
+use gen::location::*;
+use gen::walker::*;
 use loading::loading::*;
+use player::camera::*;
+use player::control::*;
 use player::player::*;
 use room::mesh::*;
 use state::GameState;
-use gen::walker::*;
-use gen::location::*;
-use player::camera::*;
-use player::control::*;
 
 fn main() {
     App::new()
@@ -33,12 +38,14 @@ fn main() {
                         title: "Catacombat".to_string(),
                         resolution: WindowResolution::new(1024.0, 600.0),
                         present_mode: bevy::window::PresentMode::Immediate,
+                        
                         ..default()
                     }),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest()),
         )
+        .add_plugins(RustySynthPlugin::default())
         .add_plugins(Sprite3dPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .register_type::<PlayerLocation>()
@@ -48,10 +55,7 @@ fn main() {
             Update,
             check_assets_ready.run_if(in_state(GameState::Loading)),
         )
-        .add_systems(
-            OnEnter(GameState::Generating),
-            setup_walkers,
-        )
+        .add_systems(OnEnter(GameState::Generating), setup_walkers)
         .add_systems(PostStartup, (setup_camera, spawn_fog).chain())
         .add_systems(
             Update,
@@ -60,12 +64,12 @@ fn main() {
                 destroy_walker_generators,
                 check_walkers,
             )
-                .run_if(in_state(GameState::Generating))
+                .run_if(in_state(GameState::Generating)),
         )
         .add_systems(
             Update,
             (sync_camera, move_player).run_if(in_state(GameState::Game)),
         )
-        .add_systems(OnExit(GameState::Generating), (setup_rooms, setup_walls))
+        .add_systems(OnExit(GameState::Generating), (setup_rooms, setup_walls, setup_background_music))
         .run();
 }

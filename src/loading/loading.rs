@@ -8,10 +8,27 @@ pub struct LoadingAssets(Vec<UntypedHandle>);
 pub fn setup_loading(mut commands: Commands, asset_server: Res<AssetServer>) {
     let mut loading_assets = LoadingAssets::default();
 
-    loading_assets.0.push(asset_server.load_untyped("sprites/doomguy.png").untyped());
-    loading_assets.0.push(asset_server.load_untyped("textures/wall.png").untyped());
-    loading_assets.0.push(asset_server.load_untyped("textures/floor.png").untyped());
-    loading_assets.0.push(asset_server.load_untyped("textures/wall_emission.png").untyped());
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("sprites/doomguy.png").untyped());
+    
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("textures/wall.png").untyped());
+
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("textures/floor.png").untyped());
+
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("music/carnival.mid").untyped());
+
+    loading_assets.0.push(
+        asset_server
+            .load_untyped("textures/wall_emission.png")
+            .untyped(),
+    );
 
     commands.insert_resource(loading_assets);
 }
