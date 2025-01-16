@@ -17,5 +17,5 @@ pub fn setup_player(mut commands: Commands, q_fly_cam: Query<&FlyCam>) {
         return;
     }
 
-    commands.spawn((Player));
+    commands.spawn(Player);
 }

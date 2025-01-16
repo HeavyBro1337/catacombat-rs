@@ -4,8 +4,8 @@ use crate::{
     WorldCatacomb, WorldLocation,
 };
 use bevy::prelude::*;
-use bevy_sprite3d::{Sprite3d, Sprite3dBuilder, Sprite3dParams};
-use rand::{rngs::ThreadRng, seq::SliceRandom};
+use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
+use rand::seq::SliceRandom;
 
 #[derive(Component)]
 #[require(WorldLocation, Path)]

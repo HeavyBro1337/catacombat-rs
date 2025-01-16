@@ -1,9 +1,6 @@
-use std::collections::VecDeque;
-use std::default;
+use bevy::prelude::*;
 
-use bevy::{prelude::*, text::cosmic_text::ttf_parser::loca};
-
-use crate::characters::location::{self, Turn};
+use crate::characters::location::Turn;
 use crate::{characters::location::WorldLocation, WorldCatacomb};
 use pathfinding::prelude::*;
 
@@ -60,7 +57,7 @@ impl Path {
         match astar(
             &start,
             &|p: &IVec2| {
-                let mut successors = vec![
+                let successors = vec![
                     p + IVec2::new(1, 0),
                     p + IVec2::new(-1, 0),
                     p + IVec2::new(0, 1),
