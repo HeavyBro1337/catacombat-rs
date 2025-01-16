@@ -11,14 +11,17 @@ fn generate_floor_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
 fn generate_wall_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
     let size = F32_ROOM_SIZE * 0.5;
 
-    let mesh = Mesh::new(bevy::render::mesh::PrimitiveTopology::TriangleList, RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD)
+    let mesh = Mesh::new(
+        bevy::render::mesh::PrimitiveTopology::TriangleList,
+        RenderAssetUsages::MAIN_WORLD | RenderAssetUsages::RENDER_WORLD,
+    )
     .with_inserted_attribute(
         Mesh::ATTRIBUTE_POSITION,
         vec![
             // top (facing towards +y)
             [-size, size, -size], // vertex with index 0
-            [size, size, -size], // vertex with index 1
-            [size, size, size], // etc. until 23
+            [size, size, -size],  // vertex with index 1
+            [size, size, size],   // etc. until 23
             [-size, size, size],
             // bottom   (-y)
             [-size, -size, -size],
@@ -51,18 +54,36 @@ fn generate_wall_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
         Mesh::ATTRIBUTE_UV_0,
         vec![
             // Assigning the UV coords for the top side.
-            [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
             // Assigning the UV coords for the bottom side.
-            [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
             ////////
             // Assigning the UV coords for the right side.
-            [1.0, 1.0], [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], // Done
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0], // Done
             // Assigning the UV coords for the left side.
-            [1.0, 1.0], [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], // Done
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0], // Done
             // Assigning the UV coords for the back side.
-            [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0], // Done
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0], // Done
             // Assigning the UV coords for the forward side.
-            [0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
         ],
     )
     .with_inserted_attribute(
@@ -101,12 +122,12 @@ fn generate_wall_mesh(assets: &mut ResMut<Assets<Mesh>>) -> Handle<Mesh> {
         ],
     )
     .with_inserted_indices(Indices::U32(vec![
-        0,3,1 , 1,3,2, // triangles making up the top (+y) facing side.
-        4,5,7 , 5,6,7, // bottom (-y)
-        8,11,9 , 9,11,10, // right (+x)
-        12,13,15 , 13,14,15, // left (-x)
-        16,19,17 , 17,19,18, // back (+z)
-        20,21,23 , 21,22,23, // forward (-z)
+        0, 3, 1, 1, 3, 2, // triangles making up the top (+y) facing side.
+        4, 5, 7, 5, 6, 7, // bottom (-y)
+        8, 11, 9, 9, 11, 10, // right (+x)
+        12, 13, 15, 13, 14, 15, // left (-x)
+        16, 19, 17, 17, 19, 18, // back (+z)
+        20, 21, 23, 21, 22, 23, // forward (-z)
     ]));
 
     assets.add(mesh)

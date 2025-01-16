@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 
-use crate::{utils::utils::convert_ivec2_to_vec3_plane, WorldCatacomb, CAMERA_HEIGHT, F32_ROOM_SIZE};
+use crate::{
+    utils::utils::convert_ivec2_to_vec3_plane, WorldCatacomb, CAMERA_HEIGHT, F32_ROOM_SIZE,
+};
 
 #[derive(Component, Reflect, Debug, Default)]
-pub struct Location {
+pub struct WorldLocation {
     location: IVec2,
     forward: IVec2,
 }
@@ -13,9 +15,9 @@ pub enum Turn {
     Left,
 }
 
-impl Location {
+impl WorldLocation {
     pub const fn new(start: IVec2, face: IVec2) -> Self {
-        Location {
+        WorldLocation {
             location: start,
             forward: face,
         }
@@ -60,7 +62,7 @@ impl Location {
 }
 
 pub fn update_character_sprite_positions(
-    mut q_characters: Query<(&Location, &mut Transform)>,
+    mut q_characters: Query<(&WorldLocation, &mut Transform)>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;

@@ -25,7 +25,10 @@ use bevy::render::view::RenderLayers;
 
 use bevy_flycam::FlyCam;
 
-use crate::{characters::location::Location, room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane};
+use crate::{
+    characters::location::WorldLocation, room::mesh::F32_ROOM_SIZE,
+    utils::utils::convert_ivec2_to_vec3_plane,
+};
 
 use super::player::Player;
 
@@ -80,10 +83,11 @@ pub fn setup_camera(
             target: render_texture_handle.clone().into(),
             clear_color: Color::WHITE.into(),
             ..default()
-        }, Projection::Perspective(PerspectiveProjection {
+        },
+        Projection::Perspective(PerspectiveProjection {
             fov: 90.0_f32.to_radians(),
             ..default()
-        })
+        }),
     ));
 
     commands.spawn((
@@ -91,7 +95,7 @@ pub fn setup_camera(
             image: render_texture_handle,
             custom_size: Some(Vec2::new(
                 RENDER_TEXTURE_WIDTH as f32,
-                RENDER_TEXTURE_HEIGHT as f32
+                RENDER_TEXTURE_HEIGHT as f32,
             )),
             ..default()
         },
@@ -102,7 +106,7 @@ pub fn setup_camera(
     commands.spawn((Camera2d::default(), RenderLayers::layer(1)));
 }
 
-pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With<Location>>) {
+pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With<WorldLocation>>) {
     let (entity, _) = q_camera.single();
     commands.entity(entity).insert(DistanceFog {
         color: Color::BLACK,
@@ -115,8 +119,8 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With
 }
 
 pub fn sync_camera(
-    q_player: Query<&Location, With<Player>>,
-    mut q_camera: Query<(&mut Transform, &Camera), With<Location>>,
+    q_player: Query<&WorldLocation, With<Player>>,
+    mut q_camera: Query<(&mut Transform, &Camera), With<WorldLocation>>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;

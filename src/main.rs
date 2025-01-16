@@ -4,28 +4,33 @@ use bevy_rustysynth::RustySynthPlugin;
 use bevy_sprite3d::Sprite3dPlugin;
 
 mod audio;
+mod characters;
+mod combat;
 mod gen;
 mod loading;
 mod room;
 mod state;
+mod tick;
 mod utils;
-mod characters;
 mod visuals;
 
 use bevy::diagnostic::*;
 use bevy::window::*;
 use bevy_inspector_egui::quick::*;
+use characters::enemy::enemy::enemies_find_player;
+use characters::enemy::enemy::move_enemies;
 use characters::enemy::enemy::setup_enemies;
 use characters::location::update_character_sprite_positions;
-use characters::location::Location;
+use characters::location::WorldLocation;
+use characters::player::camera::*;
+use characters::player::control::*;
 use characters::player::player::setup_player;
 use gen::location::*;
 use gen::walker::*;
 use loading::loading::*;
-use characters::player::camera::*;
-use characters::player::control::*;
 use room::mesh::*;
 use state::GameState;
+use tick::tick::TickEvent;
 use visuals::billboard::update_billboards;
 
 fn main() {
@@ -51,7 +56,8 @@ fn main() {
         .add_plugins(RustySynthPlugin::default())
         .add_plugins(Sprite3dPlugin)
         .add_plugins(WorldInspectorPlugin::new())
-        .register_type::<Location>()
+        .register_type::<WorldLocation>()
+        .add_event::<TickEvent>()
         .insert_resource(WorldCatacomb::default())
         .init_state::<GameState>()
         .add_systems(
@@ -71,11 +77,20 @@ fn main() {
         )
         .add_systems(
             Update,
-            ((sync_camera, move_player).run_if(in_state(GameState::Game)), (update_character_sprite_positions, update_billboards))
+            (
+                (sync_camera, move_player, move_enemies, enemies_find_player)
+                    .run_if(in_state(GameState::Game)),
+                (update_character_sprite_positions, update_billboards),
+            ),
         )
         .add_systems(
             OnExit(GameState::Generating),
-            (setup_rooms, setup_walls, setup_background_music, setup_enemies),
+            ((
+                setup_rooms,
+                setup_walls,
+                setup_background_music,
+                setup_enemies,
+            ),),
         )
         .run();
 }
