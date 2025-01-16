@@ -11,7 +11,7 @@ pub fn setup_loading(mut commands: Commands, asset_server: Res<AssetServer>) {
     loading_assets
         .0
         .push(asset_server.load_untyped("sprites/doomguy.png").untyped());
-    
+
     loading_assets
         .0
         .push(asset_server.load_untyped("textures/wall.png").untyped());

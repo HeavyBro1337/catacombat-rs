@@ -1,17 +1,15 @@
-use std::io;
-
 use audio::music::setup_background_music;
 use bevy::prelude::*;
 use bevy_rustysynth::RustySynthPlugin;
 use bevy_sprite3d::Sprite3dPlugin;
 
+mod audio;
 mod gen;
 mod loading;
 mod player;
 mod room;
 mod state;
 mod utils;
-mod audio;
 
 use bevy::diagnostic::*;
 use bevy::window::*;
@@ -38,7 +36,7 @@ fn main() {
                         title: "Catacombat".to_string(),
                         resolution: WindowResolution::new(1024.0, 600.0),
                         present_mode: bevy::window::PresentMode::Immediate,
-                        
+
                         ..default()
                     }),
                     ..default()
@@ -70,6 +68,9 @@ fn main() {
             Update,
             (sync_camera, move_player).run_if(in_state(GameState::Game)),
         )
-        .add_systems(OnExit(GameState::Generating), (setup_rooms, setup_walls, setup_background_music))
+        .add_systems(
+            OnExit(GameState::Generating),
+            (setup_rooms, setup_walls, setup_background_music),
+        )
         .run();
 }

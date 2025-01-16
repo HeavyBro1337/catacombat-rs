@@ -1,21 +1,27 @@
 use std::f32::consts::PI;
 
 use bevy::{
-    color::Color, ecs::{
+    color::Color,
+    ecs::{
         entity::Entity,
         system::{Commands, Query, Res},
-    }, image::ImageSampler, math::Quat, pbr::{DirectionalLight, DistanceFog, FogFalloff}, prelude::*, render::{camera::Camera, render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}}, time::Time, transform::components::Transform, utils::default
-
-};
-
-
-use bevy::{
+    },
+    image::ImageSampler,
+    math::Quat,
+    pbr::{DistanceFog, FogFalloff},
     prelude::*,
     render::{
-        texture::DefaultImageSampler,
-        view::RenderLayers,
+        camera::Camera,
+        render_resource::{
+            Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+        },
     },
+    time::Time,
+    transform::components::Transform,
+    utils::default,
 };
+
+use bevy::render::view::RenderLayers;
 
 use bevy_flycam::FlyCam;
 
@@ -26,9 +32,13 @@ use super::player::PlayerLocation;
 const CAMERA_HEIGHT: f32 = 1.5;
 
 const RENDER_TEXTURE_WIDTH: u32 = 320;
-const RENDER_TEXTURE_HEIGHT: u32 = 180;
+const RENDER_TEXTURE_HEIGHT: u32 = 200;
 
-pub fn setup_camera(mut commands: Commands, q_fly_cam: Query<&FlyCam>, mut images: ResMut<Assets<Image>>,) {
+pub fn setup_camera(
+    mut commands: Commands,
+    q_fly_cam: Query<&FlyCam>,
+    mut images: ResMut<Assets<Image>>,
+) {
     if !q_fly_cam.is_empty() {
         return;
     }
@@ -39,7 +49,7 @@ pub fn setup_camera(mut commands: Commands, q_fly_cam: Query<&FlyCam>, mut image
         ..default()
     };
 
-    let mut render_texture = Image {
+    let mut render_texture: Image = Image {
         texture_descriptor: TextureDescriptor {
             label: None,
             size,
@@ -60,25 +70,34 @@ pub fn setup_camera(mut commands: Commands, q_fly_cam: Query<&FlyCam>, mut image
 
     let render_texture_handle = images.add(render_texture);
 
-    commands.spawn((Camera3d::default(), Camera {
-        order: -1,
-        target: render_texture_handle.clone().into(),
-        clear_color: Color::WHITE.into(),
-        ..default()
-    }, PlayerLocation::new()));
+    commands.spawn((
+        Camera3d::default(),
+        Camera {
+            order: -1,
+            target: render_texture_handle.clone().into(),
+            clear_color: Color::WHITE.into(),
+            ..default()
+        },
+        PlayerLocation::new(),
+    ));
 
     commands.spawn((
         Sprite {
             image: render_texture_handle,
+            custom_size: Some(Vec2::new(
+                RENDER_TEXTURE_WIDTH as f32,
+                RENDER_TEXTURE_HEIGHT as f32
+            )),
             ..default()
         },
+        Transform::from_scale(Vec3::splat(4.0)),
         RenderLayers::layer(1),
     ));
 
-    commands.spawn((Camera2d::default(), ));
+    commands.spawn((Camera2d::default(), RenderLayers::layer(1)));
 }
 
-pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera)>) {
+pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With<PlayerLocation>>) {
     let (entity, _) = q_camera.single();
     commands.entity(entity).insert(DistanceFog {
         color: Color::BLACK,
@@ -92,7 +111,7 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera)>) {
 
 pub fn sync_camera(
     q_player: Query<&PlayerLocation>,
-    mut q_camera: Query<(&mut Transform, &Camera)>,
+    mut q_camera: Query<(&mut Transform, &Camera), With<PlayerLocation>>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;
