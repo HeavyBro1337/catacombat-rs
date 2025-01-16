@@ -25,9 +25,7 @@ use bevy::render::view::RenderLayers;
 
 use bevy_flycam::FlyCam;
 
-use crate::{room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane};
-
-use super::player::PlayerLocation;
+use crate::{characters::location::Location, room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane};
 
 const CAMERA_HEIGHT: f32 = 1.5;
 
@@ -78,7 +76,7 @@ pub fn setup_camera(
             clear_color: Color::WHITE.into(),
             ..default()
         },
-        PlayerLocation::new(),
+        Location::new(default(), IVec2::Y),
     ));
 
     commands.spawn((
@@ -97,7 +95,7 @@ pub fn setup_camera(
     commands.spawn((Camera2d::default(), RenderLayers::layer(1)));
 }
 
-pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With<PlayerLocation>>) {
+pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With<Location>>) {
     let (entity, _) = q_camera.single();
     commands.entity(entity).insert(DistanceFog {
         color: Color::BLACK,
@@ -110,8 +108,8 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With
 }
 
 pub fn sync_camera(
-    q_player: Query<&PlayerLocation>,
-    mut q_camera: Query<(&mut Transform, &Camera), With<PlayerLocation>>,
+    q_player: Query<&Location>,
+    mut q_camera: Query<(&mut Transform, &Camera), With<Location>>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;
@@ -135,7 +133,7 @@ pub fn sync_camera(
 }
 
 pub fn set_player_sprite_positions(
-    mut q_players: Query<(&PlayerLocation, &mut Transform)>,
+    mut q_players: Query<(&Location, &mut Transform)>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;
