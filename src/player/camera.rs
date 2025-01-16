@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::{
+    color::Color,
     core_pipeline::core_3d::Camera3dBundle,
     ecs::{
         entity::Entity,
@@ -10,7 +11,7 @@ use bevy::{
     math::{Quat, Vec3},
     pbr::{DistanceFog, FogFalloff},
     prelude::Camera3d,
-    render::{camera::Camera, color::Color},
+    render::camera::Camera,
     time::Time,
     transform::components::Transform,
     utils::default,
@@ -84,10 +85,10 @@ pub fn set_player_sprite_positions(
 
         transform.translation = transform
             .translation
-            .lerp(final_translation, time.delta_seconds() * LERP_SPEED);
+            .lerp(final_translation, time.delta_secs() * LERP_SPEED);
         transform.rotation = transform.rotation.lerp(
             Quat::from_rotation_y(angle - PI / 2.0),
-            time.delta_seconds() * LERP_SPEED,
+            time.delta_secs() * LERP_SPEED,
         );
     }
 }

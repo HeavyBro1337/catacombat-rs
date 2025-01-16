@@ -20,17 +20,28 @@ pub fn setup_rooms(
     println!("Setting up rooms");
     for loc in location.0.iter() {
         let mesh = generate_floor(&mut assets);
-        commands.spawn(PbrBundle {
-            mesh,
-            material: materials.add(StandardMaterial {
-                base_color: Color::GOLD,
+        // commands.spawn(Mesh3d {
+        //     mesh,
+        //     material: materials.add(StandardMaterial {
+        //         base_color: Color::GOLD,
+        //         ..default()
+        //     }),
+        //     transform: Transform {
+        //         translation: convert_ivec2_to_vec3_plane(*loc) * F32_ROOM_SIZE,
+        //         ..default()
+        //     },
+        //     ..default()
+        // });
+        commands.spawn((
+            Mesh3d(mesh),
+            MeshMaterial3d(materials.add(StandardMaterial {
+                base_color: Color::linear_rgba(0.58, 0.576, 0.259, 1.0),
                 ..default()
-            }),
-            transform: Transform {
+            })),
+            Transform {
                 translation: convert_ivec2_to_vec3_plane(*loc) * F32_ROOM_SIZE,
                 ..default()
             },
-            ..default()
-        });
+        ));
     }
 }

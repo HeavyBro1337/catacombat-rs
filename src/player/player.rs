@@ -1,6 +1,6 @@
 use bevy::math::IVec2;
 use bevy::prelude::*;
-use bevy_sprite3d::{Sprite3d, Sprite3dBundle, Sprite3dParams};
+use bevy_sprite3d::{Sprite3d, Sprite3dBuilder, Sprite3dBundle, Sprite3dParams};
 use serde::{Deserialize, Serialize};
 
 use crate::gen::location::WorldCatacomb;
@@ -68,26 +68,13 @@ pub struct OtherPlayer(pub u64);
 #[derive(Component)]
 pub struct OwnerId(pub u64);
 
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    sprite: Sprite3dBundle,
-    location: PlayerLocation,
-    other_player: OtherPlayer,
-}
+#[derive(Component)]
+#[require(PlayerLocation(setup_location))]
+pub struct Player;
 
-impl PlayerBundle {
-    pub fn new(image: &Handle<Image>, sprite_params: &mut Sprite3dParams, id: u64) -> Self {
-        Self {
-            sprite: Sprite3d {
-                image: image.clone(),
-                alpha_mode: AlphaMode::Blend,
-                pixels_per_metre: 32.,
-                pivot: Some(Vec2::new(0.5, 0.5)),
-                ..default()
-            }
-            .bundle(sprite_params),
-            other_player: OtherPlayer(id),
-            location: PlayerLocation::new(),
-        }
+fn setup_location() -> PlayerLocation {
+    PlayerLocation {
+        forward: IVec2::Y,
+        location: default(),
     }
 }
