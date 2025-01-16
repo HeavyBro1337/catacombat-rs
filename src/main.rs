@@ -6,20 +6,20 @@ use bevy_sprite3d::Sprite3dPlugin;
 mod audio;
 mod gen;
 mod loading;
-mod player;
 mod room;
 mod state;
 mod utils;
+mod characters;
 
 use bevy::diagnostic::*;
 use bevy::window::*;
 use bevy_inspector_egui::quick::*;
+use characters::location::Location;
 use gen::location::*;
 use gen::walker::*;
 use loading::loading::*;
-use player::camera::*;
-use player::control::*;
-use player::player::*;
+use characters::player::camera::*;
+use characters::player::control::*;
 use room::mesh::*;
 use state::GameState;
 
@@ -46,7 +46,7 @@ fn main() {
         .add_plugins(RustySynthPlugin::default())
         .add_plugins(Sprite3dPlugin)
         .add_plugins(WorldInspectorPlugin::new())
-        .register_type::<PlayerLocation>()
+        .register_type::<Location>()
         .insert_resource(WorldCatacomb::default())
         .init_state::<GameState>()
         .add_systems(
