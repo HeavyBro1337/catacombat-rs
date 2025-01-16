@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::state::GameState;
 
 #[derive(Resource, Default)]
 pub struct LoadingAssets(Vec<UntypedHandle>);

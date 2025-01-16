@@ -1,11 +1,19 @@
 use std::f32::consts::PI;
 
 use bevy::{
-    core_pipeline::core_3d::Camera3dBundle, ecs::{
+    core_pipeline::core_3d::Camera3dBundle,
+    ecs::{
         entity::Entity,
         query::{With, Without},
         system::{Commands, Query, Res},
-    }, math::{Quat, Vec3}, pbr::{DistanceFog, FogFalloff}, prelude::Camera3d, render::{camera::Camera, color::Color}, time::Time, transform::components::Transform, utils::default
+    },
+    math::{Quat, Vec3},
+    pbr::{DistanceFog, FogFalloff},
+    prelude::Camera3d,
+    render::{camera::Camera, color::Color},
+    time::Time,
+    transform::components::Transform,
+    utils::default,
 };
 use bevy_flycam::FlyCam;
 
@@ -20,10 +28,7 @@ pub fn setup_camera(mut commands: Commands, q_fly_cam: Query<&FlyCam>) {
         return;
     }
 
-    commands.spawn((
-        Camera3d::default(),
-        PlayerLocation::new(),
-    ));
+    commands.spawn((Camera3d::default(), PlayerLocation::new()));
 }
 
 pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera)>) {

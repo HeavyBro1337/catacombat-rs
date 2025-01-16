@@ -11,12 +11,6 @@ pub struct PlayerLocation {
     forward: IVec2,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct PlayerLocationNetwork {
-    location: [i32; 2],
-    forward: [i32; 2],
-}
-
 pub enum Turn {
     Right,
     Left,
@@ -28,18 +22,6 @@ impl PlayerLocation {
             location: default(),
             forward: IVec2::Y,
         }
-    }
-
-    pub fn as_remote(&self) -> PlayerLocationNetwork {
-        PlayerLocationNetwork {
-            location: self.location.to_array(),
-            forward: self.forward.to_array(),
-        }
-    }
-
-    pub fn sync(&mut self, remote: &PlayerLocationNetwork) {
-        self.forward = IVec2::from_array(remote.forward);
-        self.location = IVec2::from_array(remote.location);
     }
 
     pub fn get_forward(&self) -> IVec2 {
