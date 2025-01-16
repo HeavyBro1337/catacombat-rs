@@ -1,7 +1,5 @@
 use bevy::math::IVec2;
 use bevy::prelude::*;
-use bevy_sprite3d::{Sprite3d, Sprite3dBuilder, Sprite3dBundle, Sprite3dParams};
-use serde::{Deserialize, Serialize};
 
 use crate::gen::location::WorldCatacomb;
 
@@ -61,12 +59,6 @@ impl PlayerLocation {
         self.location += self.forward;
     }
 }
-
-#[derive(Component)]
-pub struct OtherPlayer(pub u64);
-
-#[derive(Component)]
-pub struct OwnerId(pub u64);
 
 #[derive(Component)]
 #[require(PlayerLocation(setup_location))]

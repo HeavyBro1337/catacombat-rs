@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use bevy_sprite3d::Sprite3dPlugin;
+use bevy::prelude::*;
 
 mod gen;
 mod loading;
@@ -11,14 +11,14 @@ mod utils;
 use bevy::diagnostic::*;
 use bevy::window::*;
 use bevy_inspector_egui::quick::*;
-use gen::location::*;
-use gen::walker::*;
 use loading::loading::*;
-use player::camera::*;
-use player::control::*;
 use player::player::*;
 use room::mesh::*;
 use state::GameState;
+use gen::walker::*;
+use gen::location::*;
+use player::camera::*;
+use player::control::*;
 
 fn main() {
     App::new()
@@ -48,7 +48,10 @@ fn main() {
             Update,
             check_assets_ready.run_if(in_state(GameState::Loading)),
         )
-        .add_systems(OnEnter(GameState::Generating), setup_walkers)
+        .add_systems(
+            OnEnter(GameState::Generating),
+            setup_walkers,
+        )
         .add_systems(PostStartup, (setup_camera, spawn_fog).chain())
         .add_systems(
             Update,
@@ -57,12 +60,12 @@ fn main() {
                 destroy_walker_generators,
                 check_walkers,
             )
-                .run_if(in_state(GameState::Generating)),
+                .run_if(in_state(GameState::Generating))
         )
         .add_systems(
             Update,
             (sync_camera, move_player).run_if(in_state(GameState::Game)),
         )
-        .add_systems(OnExit(GameState::Generating), setup_rooms)
+        .add_systems(OnExit(GameState::Generating), (setup_rooms, setup_walls))
         .run();
 }

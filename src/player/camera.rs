@@ -2,14 +2,12 @@ use std::f32::consts::PI;
 
 use bevy::{
     color::Color,
-    core_pipeline::core_3d::Camera3dBundle,
     ecs::{
         entity::Entity,
-        query::{With, Without},
         system::{Commands, Query, Res},
     },
-    math::{Quat, Vec3},
-    pbr::{DistanceFog, FogFalloff},
+    math::Quat,
+    pbr::{DirectionalLight, DistanceFog, FogFalloff},
     prelude::Camera3d,
     render::camera::Camera,
     time::Time,
@@ -18,7 +16,7 @@ use bevy::{
 };
 use bevy_flycam::FlyCam;
 
-use crate::{room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane, OtherPlayer};
+use crate::{room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane};
 
 use super::player::PlayerLocation;
 
@@ -28,7 +26,10 @@ pub fn setup_camera(mut commands: Commands, q_fly_cam: Query<&FlyCam>) {
     if !q_fly_cam.is_empty() {
         return;
     }
-
+    commands.spawn(DirectionalLight {
+        color: Color::linear_rgb(0.0, 0.0, 0.0),
+        ..default()
+    });
     commands.spawn((Camera3d::default(), PlayerLocation::new()));
 }
 
@@ -45,7 +46,7 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera)>) {
 }
 
 pub fn sync_camera(
-    q_player: Query<&PlayerLocation, Without<OtherPlayer>>,
+    q_player: Query<&PlayerLocation>,
     mut q_camera: Query<(&mut Transform, &Camera)>,
     time: Res<Time>,
 ) {
@@ -70,7 +71,7 @@ pub fn sync_camera(
 }
 
 pub fn set_player_sprite_positions(
-    mut q_players: Query<(&PlayerLocation, &mut Transform), With<OtherPlayer>>,
+    mut q_players: Query<(&PlayerLocation, &mut Transform)>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;
