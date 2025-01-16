@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::WorldCatacomb;
+use crate::{utils::utils::convert_ivec2_to_vec3_plane, WorldCatacomb, CAMERA_HEIGHT, F32_ROOM_SIZE};
 
-#[derive(Component, Reflect, Debug)]
+#[derive(Component, Reflect, Debug, Default)]
 pub struct Location {
     location: IVec2,
     forward: IVec2,
@@ -56,5 +56,23 @@ impl Location {
         }
 
         self.location += self.forward;
+    }
+}
+
+pub fn update_character_sprite_positions(
+    mut q_characters: Query<(&Location, &mut Transform)>,
+    time: Res<Time>,
+) {
+    const LERP_SPEED: f32 = 10.0;
+
+    for (loc, mut transform) in q_characters.iter_mut() {
+        let location = loc.get_location();
+
+        let mut final_translation = convert_ivec2_to_vec3_plane(location) * F32_ROOM_SIZE;
+        final_translation.y = CAMERA_HEIGHT;
+
+        transform.translation = transform
+            .translation
+            .lerp(final_translation, time.delta_secs() * LERP_SPEED);
     }
 }

@@ -27,7 +27,9 @@ use bevy_flycam::FlyCam;
 
 use crate::{characters::location::Location, room::mesh::F32_ROOM_SIZE, utils::utils::convert_ivec2_to_vec3_plane};
 
-const CAMERA_HEIGHT: f32 = 1.5;
+use super::player::Player;
+
+pub(crate) const CAMERA_HEIGHT: f32 = 1.5;
 
 const RENDER_TEXTURE_WIDTH: u32 = 320;
 const RENDER_TEXTURE_HEIGHT: u32 = 200;
@@ -36,6 +38,7 @@ pub fn setup_camera(
     mut commands: Commands,
     q_fly_cam: Query<&FlyCam>,
     mut images: ResMut<Assets<Image>>,
+    q_player: Query<(Entity, &Player)>,
 ) {
     if !q_fly_cam.is_empty() {
         return;
@@ -68,15 +71,19 @@ pub fn setup_camera(
 
     let render_texture_handle = images.add(render_texture);
 
-    commands.spawn((
+    let (player, _) = q_player.single();
+
+    commands.entity(player).insert((
         Camera3d::default(),
         Camera {
             order: -1,
             target: render_texture_handle.clone().into(),
             clear_color: Color::WHITE.into(),
             ..default()
-        },
-        Location::new(default(), IVec2::Y),
+        }, Projection::Perspective(PerspectiveProjection {
+            fov: 90.0_f32.to_radians(),
+            ..default()
+        })
     ));
 
     commands.spawn((
@@ -100,15 +107,15 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With
     commands.entity(entity).insert(DistanceFog {
         color: Color::BLACK,
         falloff: FogFalloff::Linear {
-            start: 5.0,
-            end: 10.0,
+            start: 2.0,
+            end: 5.0,
         },
         ..default()
     });
 }
 
 pub fn sync_camera(
-    q_player: Query<&Location>,
+    q_player: Query<&Location, With<Player>>,
     mut q_camera: Query<(&mut Transform, &Camera), With<Location>>,
     time: Res<Time>,
 ) {
@@ -130,28 +137,4 @@ pub fn sync_camera(
         Quat::from_rotation_y(angle - PI / 2.0),
         time.delta_secs() * LERP_SPEED,
     )
-}
-
-pub fn set_player_sprite_positions(
-    mut q_players: Query<(&Location, &mut Transform)>,
-    time: Res<Time>,
-) {
-    const LERP_SPEED: f32 = 10.0;
-
-    for (loc, mut transform) in q_players.iter_mut() {
-        let forward = loc.get_forward().as_vec2();
-        let location = loc.get_location();
-        let angle = forward.to_angle();
-
-        let mut final_translation = convert_ivec2_to_vec3_plane(location) * F32_ROOM_SIZE;
-        final_translation.y = CAMERA_HEIGHT;
-
-        transform.translation = transform
-            .translation
-            .lerp(final_translation, time.delta_secs() * LERP_SPEED);
-        transform.rotation = transform.rotation.lerp(
-            Quat::from_rotation_y(angle - PI / 2.0),
-            time.delta_secs() * LERP_SPEED,
-        );
-    }
 }
