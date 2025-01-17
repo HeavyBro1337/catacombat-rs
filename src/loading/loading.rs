@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::state::GameState;
 
 #[derive(Resource, Default)]
 pub struct LoadingAssets(Vec<UntypedHandle>);
@@ -8,8 +8,31 @@ pub struct LoadingAssets(Vec<UntypedHandle>);
 pub fn setup_loading(mut commands: Commands, asset_server: Res<AssetServer>) {
     let mut loading_assets = LoadingAssets::default();
 
-    let doomguy_sprite: Handle<Image> = asset_server.load("sprites/doomguy.png");
-    loading_assets.0.push(doomguy_sprite.clone().untyped());
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("sprites/doomguy.png").untyped());
+
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("sprites/cultist.png").untyped());
+
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("textures/wall.png").untyped());
+
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("textures/floor.png").untyped());
+
+    loading_assets
+        .0
+        .push(asset_server.load_untyped("music/carnival.mid").untyped());
+
+    loading_assets.0.push(
+        asset_server
+            .load_untyped("textures/wall_emission.png")
+            .untyped(),
+    );
 
     commands.insert_resource(loading_assets);
 }
@@ -30,6 +53,6 @@ pub fn check_assets_ready(
         })
     {
         println!("loaded");
-        state.set(GameState::Menu);
+        state.set(GameState::Generating);
     }
 }

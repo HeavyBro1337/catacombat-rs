@@ -1,8 +1,6 @@
-use std::{env, str::FromStr};
+use std::str::FromStr;
 
 use bevy::math::*;
-
-use crate::network::config::DEFAULT_PORT;
 
 pub fn convert_ivec2_to_vec3_plane(v: IVec2) -> Vec3 {
     IVec3 {
@@ -29,15 +27,5 @@ where
     match cmd_str.parse::<T>() {
         Ok(v) => Some(v),
         Err(_) => None,
-    }
-}
-
-pub fn get_connection_port() -> u16 {
-    let args: Vec<String> = env::args().collect();
-
-    let port = cli_parameter_arg(&args, vec!["--port".to_string(), "-p".to_string()]);
-    match port {
-        None => DEFAULT_PORT,
-        Some(p) => p,
     }
 }
