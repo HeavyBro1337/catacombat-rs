@@ -14,7 +14,6 @@ impl Path {
 
     pub fn move_location(&mut self, location: &mut WorldLocation, world: &Res<WorldCatacomb>) {
         if !self.has_path() {
-            error!("Path is empty. Returning!");
             return;
         }
 
@@ -27,14 +26,8 @@ impl Path {
         }
 
         let delta = next_position - location.get_location();
-        dbg!((
-            next_position,
-            location.get_location(),
-            delta,
-            location.get_forward()
-        ));
+
         if location.get_forward() == delta {
-            info!("Moved forward!");
             location.move_forward(world);
         } else {
             location.turn(Turn::Left);

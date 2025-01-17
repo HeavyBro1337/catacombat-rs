@@ -13,6 +13,7 @@ mod state;
 mod tick;
 mod utils;
 mod visuals;
+mod ui;
 
 use bevy::diagnostic::*;
 use bevy::window::*;
@@ -25,12 +26,19 @@ use characters::location::WorldLocation;
 use characters::player::camera::*;
 use characters::player::control::*;
 use characters::player::player::setup_player;
+use combat::combat::damage_enemy;
+use combat::combat::damage_player;
+use combat::combat::destroy_dead_enemies;
+use combat::combat::update_combat;
+use combat::combat::DamagedEvent;
 use gen::location::*;
 use gen::walker::*;
 use loading::loading::*;
 use room::mesh::*;
 use state::GameState;
 use tick::tick::TickEvent;
+use ui::tint::damage_screen;
+use ui::tint::destroy_tints;
 use visuals::billboard::update_billboards;
 
 fn main() {
@@ -58,6 +66,7 @@ fn main() {
         .add_plugins(WorldInspectorPlugin::new())
         .register_type::<WorldLocation>()
         .add_event::<TickEvent>()
+        .add_event::<DamagedEvent>()
         .insert_resource(WorldCatacomb::default())
         .init_state::<GameState>()
         .add_systems(
@@ -78,7 +87,18 @@ fn main() {
         .add_systems(
             Update,
             (
-                (sync_camera, move_player, move_enemies, enemies_find_player)
+                (
+                    sync_camera,
+                    move_player,
+                    move_enemies,
+                    enemies_find_player,
+                    update_combat,
+                    (damage_enemy,
+                    damage_player).chain(),
+                    destroy_tints,
+                    destroy_dead_enemies,
+                    damage_screen,
+                )
                     .run_if(in_state(GameState::Game)),
                 (update_character_sprite_positions, update_billboards),
             ),

@@ -1,14 +1,14 @@
 use super::path::Path;
 use crate::{
-    characters::player::player::Player, tick::tick::TickEvent, visuals::billboard::Billboard,
-    WorldCatacomb, WorldLocation,
+    characters::player::player::Player, combat::combat::{Combat, Health}, tick::tick::TickEvent,
+    visuals::billboard::Billboard, WorldCatacomb, WorldLocation,
 };
 use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
 use rand::seq::SliceRandom;
 
 #[derive(Component)]
-#[require(WorldLocation, Path)]
+#[require(WorldLocation, Path, Health, Combat)]
 pub struct Enemy;
 
 pub fn setup_enemies(
@@ -18,7 +18,6 @@ pub fn setup_enemies(
     mut sprite_params: Sprite3dParams,
 ) {
     let dirs = vec![IVec2::X, IVec2::Y, IVec2::NEG_X, IVec2::NEG_Y];
-
     for room in world
         .0
         .iter()
@@ -66,7 +65,6 @@ pub fn move_enemies(
     world: Res<WorldCatacomb>,
 ) {
     for _ in ev_tick.read() {
-        info!("Moving enemies...");
         for (mut location, mut path) in q_enemies.iter_mut() {
             path.move_location(&mut location, &world);
         }

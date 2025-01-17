@@ -8,6 +8,7 @@ use crate::{
 pub struct WorldLocation {
     location: IVec2,
     forward: IVec2,
+    pub can_move: bool,
 }
 
 pub enum Turn {
@@ -20,6 +21,7 @@ impl WorldLocation {
         WorldLocation {
             location: start,
             forward: face,
+            can_move: true,
         }
     }
 
@@ -31,7 +33,15 @@ impl WorldLocation {
         self.location
     }
 
+    pub fn face_towards(&mut self, position: IVec2) {
+        self.forward = position - self.location;
+    }
+
     pub fn turn(&mut self, dir: Turn) {
+        if !self.can_move {
+            return;
+        }
+
         let forward = self.forward;
         match dir {
             Turn::Right => {
@@ -51,6 +61,10 @@ impl WorldLocation {
         }
     }
     pub fn move_forward(&mut self, world: &Res<WorldCatacomb>) {
+        if !self.can_move {
+            return;
+        }
+
         let forward_location = self.location + self.forward;
 
         if !world.0.contains(&forward_location) {
