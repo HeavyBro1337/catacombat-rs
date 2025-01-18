@@ -28,6 +28,7 @@ impl AnimationTimer {
             if self.next.is_some() {
                 let next = self.next.clone().unwrap().clone();
                 self.play(next, None);
+                self.update_now = false;
             } else if !info.looped {
                 self.current_frame = old_frame;
             }
