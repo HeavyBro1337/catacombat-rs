@@ -1,7 +1,7 @@
 use super::path::Path;
 use crate::{
     characters::player::player::Player, combat::combat::{Combat, Health}, tick::tick::TickEvent,
-    visuals::billboard::Billboard, WorldCatacomb, WorldLocation,
+    visuals::{animation::{AnimationInfo, AnimationTimer, Animations}, billboard::Billboard}, WorldCatacomb, WorldLocation,
 };
 use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
@@ -11,11 +11,41 @@ use rand::seq::SliceRandom;
 #[require(WorldLocation, Path, Health, Combat)]
 pub struct Enemy;
 
+pub fn setup_enemy_atlas(
+    mut texture_atlases:  ResMut<Assets<TextureAtlasLayout>>,
+    mut animations: ResMut<Animations>,
+) {
+    let layout = texture_atlases.add(
+        TextureAtlasLayout::from_grid(UVec2::new(161, 129), 8, 4, None, None)
+    );
+    
+    animations.new_animation("Cultist".to_string(), "walk".to_string(), AnimationInfo { 
+        len: 6, 
+        row: 0,
+    }, layout.clone());
+
+    animations.new_animation("Cultist".to_string(), "attack".to_string(), AnimationInfo { 
+        len: 2, 
+        row: 1,
+    }, layout.clone());
+
+    animations.new_animation("Cultist".to_string(), "pain".to_string(), AnimationInfo { 
+        len: 1, 
+        row: 2,
+    }, layout.clone());
+
+    animations.new_animation("Cultist".to_string(), "death".to_string(), AnimationInfo { 
+        len: 8, 
+        row: 3,
+    }, layout.clone());
+}
+
 pub fn setup_enemies(
     world: Res<WorldCatacomb>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut sprite_params: Sprite3dParams,
+    animations: Res<Animations>,
 ) {
     let dirs = vec![IVec2::X, IVec2::Y, IVec2::NEG_X, IVec2::NEG_Y];
     for room in world
@@ -26,8 +56,22 @@ pub fn setup_enemies(
     {
         let room = **room;
         let face = dirs.choose(&mut rand::thread_rng()).unwrap();
+
+        let (_, layout) = animations.atlases.get(&"Cultist".to_string()).unwrap();
+
+        let texture_atlas = TextureAtlas {
+            index: 0,
+            layout: layout.clone()
+        };
+
         commands.spawn((
             Enemy,
+            AnimationTimer{
+                timer: Timer::from_seconds(0.3, TimerMode::Repeating), 
+                library: "Cultist".to_string(),
+                current_animation: "walk".to_string(),
+                current_frame: 0,
+            },
             Billboard,
             WorldLocation::new(room, *face),
             Sprite3dBuilder {
@@ -37,7 +81,7 @@ pub fn setup_enemies(
                 unlit: true,
                 ..default()
             }
-            .bundle(&mut sprite_params),
+            .bundle_with_atlas(&mut sprite_params, texture_atlas),
         ));
     }
 }

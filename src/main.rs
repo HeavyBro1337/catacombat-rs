@@ -21,6 +21,7 @@ use bevy_inspector_egui::quick::*;
 use characters::enemy::enemy::enemies_find_player;
 use characters::enemy::enemy::move_enemies;
 use characters::enemy::enemy::setup_enemies;
+use characters::enemy::enemy::setup_enemy_atlas;
 use characters::location::update_character_sprite_positions;
 use characters::location::WorldLocation;
 use characters::player::camera::*;
@@ -39,6 +40,8 @@ use state::GameState;
 use tick::tick::TickEvent;
 use ui::tint::damage_screen;
 use ui::tint::destroy_tints;
+use visuals::animation::animate_sprite;
+use visuals::animation::Animations;
 use visuals::billboard::update_billboards;
 
 fn main() {
@@ -68,11 +71,13 @@ fn main() {
         .add_event::<TickEvent>()
         .add_event::<DamagedEvent>()
         .insert_resource(WorldCatacomb::default())
+        .insert_resource(Animations::default())
         .init_state::<GameState>()
         .add_systems(
             Update,
             check_assets_ready.run_if(in_state(GameState::Loading)),
         )
+        .add_systems(OnExit(GameState::Loading), setup_enemy_atlas)
         .add_systems(OnEnter(GameState::Generating), setup_walkers)
         .add_systems(PostStartup, (setup_player, setup_camera, spawn_fog).chain())
         .add_systems(
@@ -98,6 +103,7 @@ fn main() {
                     destroy_tints,
                     destroy_dead_enemies,
                     damage_screen,
+                    animate_sprite,
                 )
                     .run_if(in_state(GameState::Game)),
                 (update_character_sprite_positions, update_billboards),
