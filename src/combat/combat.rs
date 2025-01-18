@@ -1,5 +1,5 @@
-use bevy::{prelude::*, text::cosmic_text::ttf_parser::loca, utils::info};
-use bevy_sprite3d::{Sprite3d, Sprite3dBuilder, Sprite3dParams};
+use bevy::prelude::*;
+use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
 
 use crate::{
     characters::{enemy::enemy::Enemy, location::WorldLocation, player::player::Player},
@@ -69,7 +69,6 @@ pub fn damage_enemy(
     mut q_player: Query<(&Player, &mut Combat, &mut WorldLocation), Without<Enemy>>,
     mut q_enemies: Query<(&mut Health, &Enemy, &mut Combat, &mut AnimationTimer)>,
     mut ev_combat: EventReader<CombatEvent>,
-    mut combat_state: ResMut<CombatState>,
 ) {
     for combat_event in ev_combat.read() {
         let Ok((_, mut player_combat, mut player_location)) = q_player.get_mut(combat_event.0)

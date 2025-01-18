@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::info};
+use bevy::prelude::*;
 
 use crate::{characters::player::player::Player, combat::combat::DamagedEvent};
 
