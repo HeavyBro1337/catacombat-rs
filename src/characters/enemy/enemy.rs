@@ -48,7 +48,7 @@ pub fn setup_enemy_atlas(
     animations.new_animation(
         "Cultist".to_string(),
         "pain".to_string(),
-        AnimationInfo { len: 1, row: 2, looped: true },
+        AnimationInfo { len: 2, row: 2, looped: true },
         layout.clone(),
         8,
     );

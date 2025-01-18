@@ -133,6 +133,7 @@ pub fn destroy_dead_enemies(
         commands.spawn((Sprite3dBuilder {
             image: asset_server.load("sprites/cultist.png"),
             unlit: true,
+            pixels_per_metre: 64.0,
             pivot: Some(Vec2::new(0.5, 0.75)),
             ..default()
         }.bundle_with_atlas(&mut sprite_params, texture_atlas), Billboard, AnimationTimer {
