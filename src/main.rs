@@ -27,10 +27,14 @@ use characters::location::WorldLocation;
 use characters::player::camera::*;
 use characters::player::control::*;
 use characters::player::player::setup_player;
+use combat::combat::check_enemy_combat;
+use combat::combat::check_player_combat;
 use combat::combat::damage_enemy;
 use combat::combat::damage_player;
 use combat::combat::destroy_dead_enemies;
 use combat::combat::update_combat;
+use combat::combat::CombatEvent;
+use combat::combat::CombatState;
 use combat::combat::DamagedEvent;
 use gen::location::*;
 use gen::walker::*;
@@ -69,9 +73,13 @@ fn main() {
         .add_plugins(WorldInspectorPlugin::new())
         .register_type::<WorldLocation>()
         .add_event::<TickEvent>()
+        .add_event::<CombatEvent>()
         .add_event::<DamagedEvent>()
         .insert_resource(WorldCatacomb::default())
         .insert_resource(Animations::default())
+        .insert_resource(CombatState {
+            cooldown: Timer::from_seconds(0.5, TimerMode::Once)
+        })
         .init_state::<GameState>()
         .add_systems(
             Update,
@@ -101,6 +109,8 @@ fn main() {
                     (damage_enemy, damage_player).chain(),
                     destroy_tints,
                     destroy_dead_enemies,
+                    check_player_combat,
+                    check_enemy_combat,
                     damage_screen,
                     animate_sprite,
                 )

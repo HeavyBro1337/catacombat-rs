@@ -8,7 +8,7 @@ pub struct AnimationTimer {
     pub current_animation: String,
     pub current_frame: usize,
     pub next: Option<String>,
-    pub update_now: bool
+    pub update_now: bool,
 }
 
 impl AnimationTimer {
@@ -39,7 +39,7 @@ impl AnimationTimer {
 pub struct AnimationInfo {
     pub len: usize,
     pub row: usize,
-    pub looped: bool
+    pub looped: bool,
 }
 
 #[derive(Resource, Default)]

@@ -32,7 +32,11 @@ pub fn setup_enemy_atlas(
     animations.new_animation(
         "Cultist".to_string(),
         "walk".to_string(),
-        AnimationInfo { len: 6, row: 0, looped: true },
+        AnimationInfo {
+            len: 6,
+            row: 0,
+            looped: true,
+        },
         layout.clone(),
         8,
     );
@@ -40,7 +44,11 @@ pub fn setup_enemy_atlas(
     animations.new_animation(
         "Cultist".to_string(),
         "attack".to_string(),
-        AnimationInfo { len: 2, row: 1, looped: true },
+        AnimationInfo {
+            len: 2,
+            row: 1,
+            looped: true,
+        },
         layout.clone(),
         8,
     );
@@ -48,7 +56,11 @@ pub fn setup_enemy_atlas(
     animations.new_animation(
         "Cultist".to_string(),
         "pain".to_string(),
-        AnimationInfo { len: 2, row: 2, looped: true },
+        AnimationInfo {
+            len: 2,
+            row: 2,
+            looped: true,
+        },
         layout.clone(),
         8,
     );
@@ -56,7 +68,11 @@ pub fn setup_enemy_atlas(
     animations.new_animation(
         "Cultist".to_string(),
         "death".to_string(),
-        AnimationInfo { len: 8, row: 3, looped: false },
+        AnimationInfo {
+            len: 8,
+            row: 3,
+            looped: false,
+        },
         layout.clone(),
         8,
     );
