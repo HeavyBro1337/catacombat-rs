@@ -26,7 +26,7 @@ pub fn setup_loading(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     loading_assets
         .0
-        .push(asset_server.load_untyped("music/carnival.mid").untyped());
+        .push(asset_server.load_untyped("music/catacombs.mid").untyped());
 
     loading_assets.0.push(
         asset_server
