@@ -90,7 +90,7 @@ pub fn setup_enemies(
         .0
         .iter()
         .collect::<Vec<_>>()
-        .choose_multiple(&mut rand::thread_rng(), 1)
+        .choose_multiple(&mut rand::thread_rng(), 4)
     {
         let room = **room;
         let face = dirs.choose(&mut rand::thread_rng()).unwrap();

@@ -31,7 +31,7 @@ use combat::combat::check_enemy_combat;
 use combat::combat::check_player_combat;
 use combat::combat::damage_enemy;
 use combat::combat::damage_player;
-use combat::combat::destroy_dead_enemies;
+use combat::combat::despawn_dead_enemies;
 use combat::combat::update_combat;
 use combat::combat::CombatEvent;
 use combat::combat::CombatState;
@@ -78,7 +78,9 @@ fn main() {
         .insert_resource(WorldCatacomb::default())
         .insert_resource(Animations::default())
         .insert_resource(CombatState {
-            cooldown: Timer::from_seconds(0.5, TimerMode::Once)
+            cooldown: Timer::from_seconds(0.5, TimerMode::Once),
+            opponent: None,
+            is_player_turn: false,
         })
         .init_state::<GameState>()
         .add_systems(
@@ -108,7 +110,7 @@ fn main() {
                     update_combat,
                     (damage_enemy, damage_player).chain(),
                     destroy_tints,
-                    destroy_dead_enemies,
+                    despawn_dead_enemies,
                     check_player_combat,
                     check_enemy_combat,
                     damage_screen,
