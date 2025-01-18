@@ -1,8 +1,10 @@
-use bevy::{prelude::*, utils::info};
+use bevy::{prelude::*, text::cosmic_text::ttf_parser::loca, utils::info};
+use bevy_sprite3d::{Sprite3d, Sprite3dBuilder, Sprite3dParams};
 
 use crate::{
     characters::{enemy::enemy::Enemy, location::WorldLocation, player::player::Player},
     tick::tick::TickEvent,
+    visuals::{animation::{AnimationTimer, Animations}, billboard::Billboard},
 };
 
 #[derive(Component, Default, Debug)]
@@ -54,7 +56,7 @@ pub fn update_combat(
 
 pub fn damage_enemy(
     mut q_player: Query<(&Player, &mut Combat, &mut WorldLocation), Without<Enemy>>,
-    mut q_enemies: Query<(&mut Health, &Enemy, &mut Combat)>,
+    mut q_enemies: Query<(&mut Health, &Enemy, &mut Combat, &mut AnimationTimer)>,
     mut ev_tick: EventReader<TickEvent>,
 ) {
     for _ in ev_tick.read() {
@@ -62,9 +64,7 @@ pub fn damage_enemy(
         if player_combat.done || !player_combat.is_in_combat {
             return;
         }
-        for (mut enemy_health, _, mut enemy_combat) in q_enemies.iter_mut() {
-            dbg!(enemy_combat.is_in_combat);
-            dbg!(enemy_combat.done);
+        for (mut enemy_health, _, mut enemy_combat, mut enemy_animation) in q_enemies.iter_mut() {
             if !enemy_combat.is_in_combat {
                 continue;
             }
@@ -72,6 +72,7 @@ pub fn damage_enemy(
                 continue;
             }
             enemy_health.0 -= 30;
+            enemy_animation.play("pain".to_string(), Some("walk".to_string()));
             enemy_combat.done = false;
             player_combat.done = true;
 
@@ -85,42 +86,60 @@ pub fn damage_enemy(
 
 pub fn damage_player(
     mut q_player: Query<(&mut Health, &Player, &mut Combat, Entity), Without<Enemy>>,
-    mut q_enemies: Query<(&Enemy, &mut Combat)>,
+    mut q_enemies: Query<(&Enemy, &mut Combat, &mut AnimationTimer)>,
     mut ev_tick: EventReader<TickEvent>,
-    mut ev_damaged: EventWriter<DamagedEvent>
+    mut ev_damaged: EventWriter<DamagedEvent>,
 ) {
     for _ in ev_tick.read() {
-        let (mut health, _, mut player_combat, player_entity) = q_player.single_mut();
-        info!("Trying to damage player");
+        let (mut player_health, _, mut player_combat, player_entity) = q_player.single_mut();
         if !player_combat.done || !player_combat.is_in_combat {
             return;
         }
-        info!("Player is fightable");
 
-        for (_, mut enemy_combat) in q_enemies.iter_mut() {
+        for (_, mut enemy_combat, mut enemy_animation) in q_enemies.iter_mut() {
             if !enemy_combat.is_in_combat {
                 continue;
             }
-        info!("Enemy is in combat");
-
-            health.0 -= 30;
+            enemy_animation.play("attack".to_string(), Some("walk".to_string()));
+            player_health.0 -= 30;
             ev_damaged.send(DamagedEvent(player_entity));
             enemy_combat.done = true;
             player_combat.done = false;
-            break
+            break;
         }
     }
 }
 
 pub fn destroy_dead_enemies(
     mut commands: Commands,
-    q_enemies: Query<(&Health, Entity), With<Enemy>>,
+    q_enemies: Query<(&Health, Entity, &AnimationTimer, &WorldLocation, &Transform), With<Enemy>>,
+    asset_server: Res<AssetServer>,
+    mut sprite_params: Sprite3dParams,
+    animations: Res<Animations>,
 ) {
-    for (health, entity) in q_enemies.iter() {
+    for (health, entity, animation, location, transform) in q_enemies.iter() {
         if health.0 > 0 {
             continue;
         }
 
+        let (_, layout, _) = animations.atlases.get(&animation.library.to_string()).unwrap();
+
+        let texture_atlas = TextureAtlas {
+            index: 0,
+            layout: layout.clone(),
+        };
+
         commands.entity(entity).despawn();
+        commands.spawn((Sprite3dBuilder {
+            image: asset_server.load("sprites/cultist.png"),
+            unlit: true,
+            pivot: Some(Vec2::new(0.5, 0.75)),
+            ..default()
+        }.bundle_with_atlas(&mut sprite_params, texture_atlas), Billboard, AnimationTimer {
+            current_animation: "death".to_string(),
+            library: animation.library.clone(),
+            timer: Timer::from_seconds(0.2, TimerMode::Repeating),
+            ..default()
+        }, location.clone(), transform.clone()));
     }
 }

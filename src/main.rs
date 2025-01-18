@@ -11,9 +11,9 @@ mod loading;
 mod room;
 mod state;
 mod tick;
+mod ui;
 mod utils;
 mod visuals;
-mod ui;
 
 use bevy::diagnostic::*;
 use bevy::window::*;
@@ -47,7 +47,7 @@ use visuals::billboard::update_billboards;
 fn main() {
     App::new()
         .add_plugins(LogDiagnosticsPlugin::default())
-        .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        // .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_systems(PreStartup, setup_loading)
         // .add_plugins(PlayerPlugin)
         .add_plugins(
@@ -98,8 +98,7 @@ fn main() {
                     move_enemies,
                     enemies_find_player,
                     update_combat,
-                    (damage_enemy,
-                    damage_player).chain(),
+                    (damage_enemy, damage_player).chain(),
                     destroy_tints,
                     destroy_dead_enemies,
                     damage_screen,

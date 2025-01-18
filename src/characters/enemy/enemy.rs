@@ -1,7 +1,13 @@
 use super::path::Path;
 use crate::{
-    characters::player::player::Player, combat::combat::{Combat, Health}, tick::tick::TickEvent,
-    visuals::{animation::{AnimationInfo, AnimationTimer, Animations}, billboard::Billboard}, WorldCatacomb, WorldLocation,
+    characters::player::player::Player,
+    combat::combat::{Combat, Health},
+    tick::tick::TickEvent,
+    visuals::{
+        animation::{AnimationInfo, AnimationTimer, Animations},
+        billboard::Billboard,
+    },
+    WorldCatacomb, WorldLocation,
 };
 use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
@@ -12,32 +18,48 @@ use rand::seq::SliceRandom;
 pub struct Enemy;
 
 pub fn setup_enemy_atlas(
-    mut texture_atlases:  ResMut<Assets<TextureAtlasLayout>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
     mut animations: ResMut<Animations>,
 ) {
-    let layout = texture_atlases.add(
-        TextureAtlasLayout::from_grid(UVec2::new(161, 129), 8, 4, None, None)
+    let layout = texture_atlases.add(TextureAtlasLayout::from_grid(
+        UVec2::new(161, 129),
+        8,
+        4,
+        None,
+        None,
+    ));
+
+    animations.new_animation(
+        "Cultist".to_string(),
+        "walk".to_string(),
+        AnimationInfo { len: 6, row: 0, looped: true },
+        layout.clone(),
+        8,
     );
-    
-    animations.new_animation("Cultist".to_string(), "walk".to_string(), AnimationInfo { 
-        len: 6, 
-        row: 0,
-    }, layout.clone());
 
-    animations.new_animation("Cultist".to_string(), "attack".to_string(), AnimationInfo { 
-        len: 2, 
-        row: 1,
-    }, layout.clone());
+    animations.new_animation(
+        "Cultist".to_string(),
+        "attack".to_string(),
+        AnimationInfo { len: 2, row: 1, looped: true },
+        layout.clone(),
+        8,
+    );
 
-    animations.new_animation("Cultist".to_string(), "pain".to_string(), AnimationInfo { 
-        len: 1, 
-        row: 2,
-    }, layout.clone());
+    animations.new_animation(
+        "Cultist".to_string(),
+        "pain".to_string(),
+        AnimationInfo { len: 1, row: 2, looped: true },
+        layout.clone(),
+        8,
+    );
 
-    animations.new_animation("Cultist".to_string(), "death".to_string(), AnimationInfo { 
-        len: 8, 
-        row: 3,
-    }, layout.clone());
+    animations.new_animation(
+        "Cultist".to_string(),
+        "death".to_string(),
+        AnimationInfo { len: 8, row: 3, looped: false },
+        layout.clone(),
+        8,
+    );
 }
 
 pub fn setup_enemies(
@@ -57,20 +79,21 @@ pub fn setup_enemies(
         let room = **room;
         let face = dirs.choose(&mut rand::thread_rng()).unwrap();
 
-        let (_, layout) = animations.atlases.get(&"Cultist".to_string()).unwrap();
+        let (_, layout, _) = animations.atlases.get(&"Cultist".to_string()).unwrap();
 
         let texture_atlas = TextureAtlas {
             index: 0,
-            layout: layout.clone()
+            layout: layout.clone(),
         };
 
         commands.spawn((
             Enemy,
-            AnimationTimer{
-                timer: Timer::from_seconds(0.3, TimerMode::Repeating), 
+            AnimationTimer {
+                timer: Timer::from_seconds(0.3, TimerMode::Repeating),
                 library: "Cultist".to_string(),
                 current_animation: "walk".to_string(),
                 current_frame: 0,
+                ..default()
             },
             Billboard,
             WorldLocation::new(room, *face),

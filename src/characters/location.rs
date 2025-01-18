@@ -4,7 +4,7 @@ use crate::{
     utils::utils::convert_ivec2_to_vec3_plane, WorldCatacomb, CAMERA_HEIGHT, F32_ROOM_SIZE,
 };
 
-#[derive(Component, Reflect, Debug, Default)]
+#[derive(Component, Reflect, Debug, Default, Clone)]
 pub struct WorldLocation {
     location: IVec2,
     forward: IVec2,
