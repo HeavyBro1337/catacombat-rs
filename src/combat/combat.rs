@@ -1,12 +1,8 @@
-use bevy::{prelude::*, utils::info};
+use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
 
 use crate::{
-    characters::{
-        enemy::enemy::Enemy,
-        location::WorldLocation,
-        player::{self, player::Player},
-    },
+    characters::{enemy::enemy::Enemy, location::WorldLocation, player::player::Player},
     tick::tick::TickEvent,
     visuals::{
         animation::{AnimationTimer, Animations},
@@ -80,7 +76,7 @@ pub fn damage_enemy(
     )>,
     mut ev_combat: EventReader<CombatEvent>,
     mut ev_damaged: EventWriter<DamagedEvent>,
-    mut combat_state: ResMut<CombatState>,
+    combat_state: ResMut<CombatState>,
 ) {
     if !combat_state.is_player_turn {
         return;
@@ -92,7 +88,7 @@ pub fn damage_enemy(
             return;
         }
 
-        let Ok((mut enemy_health, _, mut enemy_combat, mut enemy_animation, enemy_entity)) =
+        let Ok((mut enemy_health, _, enemy_combat, mut enemy_animation, enemy_entity)) =
             q_enemies.get_mut(combat_state.opponent.unwrap())
         else {
             return;
@@ -175,7 +171,7 @@ pub fn damage_player(
     mut q_enemies: Query<(&Enemy, &mut AnimationTimer)>,
     mut ev_combat: EventReader<CombatEvent>,
     mut ev_damaged: EventWriter<DamagedEvent>,
-    mut combat_state: ResMut<CombatState>,
+    combat_state: ResMut<CombatState>,
 ) {
     if combat_state.is_player_turn {
         return;
@@ -191,8 +187,7 @@ pub fn damage_player(
             return;
         }
 
-        let Ok((_, mut enemy_animation)) = q_enemies.get_mut(combat_state.opponent.unwrap())
-        else {
+        let Ok((_, mut enemy_animation)) = q_enemies.get_mut(combat_state.opponent.unwrap()) else {
             return;
         };
         enemy_animation.play("attack".to_string(), Some("walk".to_string()));
