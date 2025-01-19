@@ -1,6 +1,9 @@
-use bevy::prelude::*;
+use bevy::{audio::Source, prelude::*};
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
+use rand::seq::IteratorRandom;
+use rand::{seq::SliceRandom, thread_rng};
 
+use crate::audio::random::RandomAudio;
 use crate::{
     characters::{enemy::enemy::Enemy, location::WorldLocation, player::player::Player},
     tick::tick::TickEvent,
@@ -10,6 +13,9 @@ use crate::{
     },
 };
 
+use super::death::DeathSound;
+use super::pain::{self, PainSound};
+
 #[derive(Resource)]
 pub struct CombatState {
     pub cooldown: Timer,
@@ -17,11 +23,14 @@ pub struct CombatState {
     pub is_player_turn: bool,
 }
 
+#[derive(Component, Default, DerefMut, Deref)]
+pub struct CombatReplica(pub RandomAudio);
+
 #[derive(Event)]
 pub struct CombatEvent(Entity); // TODO: Remove this or find the proper usage.
 
 #[derive(Component, Default, Debug)]
-#[require(Health)]
+#[require(Health, CombatReplica)]
 pub struct Combat {
     pub is_in_combat: bool,
 }
@@ -40,9 +49,10 @@ pub struct DamagedEvent(pub Entity);
 
 pub fn update_combat(
     mut q_player: Query<(&mut WorldLocation, &Player, &mut Combat), Without<Enemy>>,
-    mut q_enemies: Query<(&mut WorldLocation, &Enemy, Entity)>,
+    mut q_enemies: Query<(&mut WorldLocation, &Enemy, Entity, &CombatReplica)>,
     mut ev_tick: EventReader<TickEvent>,
     mut combat_state: ResMut<CombatState>,
+    mut commands: Commands,
 ) {
     let (mut player_location, _, mut player_combat) = q_player.single_mut();
     player_combat.is_in_combat = combat_state.opponent.is_some();
@@ -51,7 +61,7 @@ pub fn update_combat(
         return;
     }
     for _ in ev_tick.read() {
-        for (mut enemy_location, _, enemy_entity) in q_enemies.iter_mut() {
+        for (mut enemy_location, _, enemy_entity, enemy_replicas) in q_enemies.iter_mut() {
             let distance = enemy_location
                 .get_location()
                 .distance_squared(player_location.get_location());
@@ -59,6 +69,16 @@ pub fn update_combat(
                 player_location.face_towards(enemy_location.get_location());
                 combat_state.opponent = Some(enemy_entity);
                 enemy_location.can_move = false;
+                if let Some(replica) = enemy_replicas.pick() {
+                    commands.spawn((
+                        AudioPlayer(replica.clone()),
+                        PlaybackSettings {
+                            mode: bevy::audio::PlaybackMode::Despawn,
+                            ..default()
+                        },
+                    ));
+                }
+
                 break;
             }
         }
@@ -66,13 +86,9 @@ pub fn update_combat(
 }
 
 pub fn damage_enemy(
+    mut commands: Commands,
     mut q_player: Query<(&Player, &mut Combat, &mut WorldLocation), Without<Enemy>>,
-    mut q_enemies: Query<(
-        &mut Health,
-        &Enemy,
-        &mut AnimationTimer,
-        Entity,
-    )>,
+    mut q_enemies: Query<(&mut Health, &Enemy, &mut AnimationTimer, &PainSound, Entity)>,
     mut ev_combat: EventReader<CombatEvent>,
     mut ev_damaged: EventWriter<DamagedEvent>,
     combat_state: ResMut<CombatState>,
@@ -87,7 +103,7 @@ pub fn damage_enemy(
             return;
         }
 
-        let Ok((mut enemy_health, _, mut enemy_animation, enemy_entity)) =
+        let Ok((mut enemy_health, _, mut enemy_animation, enemy_pain_sound, enemy_entity)) =
             q_enemies.get_mut(combat_state.opponent.unwrap())
         else {
             return;
@@ -95,12 +111,18 @@ pub fn damage_enemy(
 
         enemy_health.0 -= 30;
         enemy_animation.play("pain".to_string(), Some("walk".to_string()));
+
+        
         ev_damaged.send(DamagedEvent(enemy_entity));
         if enemy_health.0 <= 0 {
             player_combat.is_in_combat = false;
             player_location.can_move = true;
+        } else if let Some(pain_sound) = enemy_pain_sound.pick() {
+            commands.spawn((AudioPlayer(pain_sound.clone()), PlaybackSettings {
+                mode: bevy::audio::PlaybackMode::Despawn,
+                ..default()
+            }));
         }
-
         break;
     }
 }
@@ -170,8 +192,12 @@ pub fn damage_player(
     mut q_enemies: Query<(&Enemy, &mut AnimationTimer)>,
     mut ev_combat: EventReader<CombatEvent>,
     mut ev_damaged: EventWriter<DamagedEvent>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
     combat_state: ResMut<CombatState>,
 ) {
+    use bevy::audio::AudioSource;
+
     if combat_state.is_player_turn {
         return;
     }
@@ -192,12 +218,29 @@ pub fn damage_player(
         enemy_animation.play("attack".to_string(), Some("walk".to_string()));
         player_health.0 -= 30;
         ev_damaged.send(DamagedEvent(player_entity));
+        commands.spawn((
+            AudioPlayer(asset_server.load::<AudioSource>("sounds/weapon/shot_fire.wav")),
+            PlaybackSettings {
+                mode: bevy::audio::PlaybackMode::Despawn,
+                ..Default::default()
+            },
+        ));
     }
 }
 
 pub fn despawn_dead_enemies(
     mut commands: Commands,
-    q_enemies: Query<(&Health, Entity, &AnimationTimer, &WorldLocation, &Transform), With<Enemy>>,
+    q_enemies: Query<
+        (
+            &Health,
+            Entity,
+            &AnimationTimer,
+            &WorldLocation,
+            &Transform,
+            &DeathSound,
+        ),
+        With<Enemy>,
+    >,
     asset_server: Res<AssetServer>,
     mut sprite_params: Sprite3dParams,
     animations: Res<Animations>,
@@ -211,7 +254,7 @@ pub fn despawn_dead_enemies(
         }
     }
 
-    for (health, entity, animation, location, transform) in q_enemies.iter() {
+    for (health, entity, animation, location, transform, death_sound) in q_enemies.iter() {
         if health.0 > 0 {
             continue;
         }
@@ -227,6 +270,15 @@ pub fn despawn_dead_enemies(
         };
 
         commands.entity(entity).despawn();
+        if let Some(death_sound) = death_sound.pick() {
+            commands.spawn((
+                AudioPlayer(death_sound.clone()),
+                PlaybackSettings {
+                    mode: bevy::audio::PlaybackMode::Despawn,
+                    ..default()
+                },
+            ));
+        }
         commands.spawn((
             Sprite3dBuilder {
                 image: asset_server.load("sprites/cultist.png"),

@@ -1,7 +1,12 @@
 use super::path::Path;
 use crate::{
+    audio::random::{get_audio_handles, RandomAudio},
     characters::player::player::Player,
-    combat::combat::{Combat, Health},
+    combat::{
+        combat::{Combat, CombatReplica, CombatState, Health},
+        death::DeathSound,
+        pain::PainSound,
+    },
     tick::tick::TickEvent,
     visuals::{
         animation::{AnimationInfo, AnimationTimer, Animations},
@@ -101,9 +106,18 @@ pub fn setup_enemies(
             index: 0,
             layout: layout.clone(),
         };
+        let mut replicas = Vec::<Handle<AudioSource>>::default();
+
+        for n in 1..=3 {
+            replicas.push(
+                asset_server
+                    .load::<AudioSource>(format!("sounds/characters/cultist/replica_{n}.wav")),
+            );
+        }
 
         commands.spawn((
             Enemy,
+            CombatReplica(RandomAudio::new(replicas)),
             AnimationTimer {
                 timer: Timer::from_seconds(0.3, TimerMode::Repeating),
                 library: "Cultist".to_string(),
@@ -111,6 +125,21 @@ pub fn setup_enemies(
                 current_frame: 0,
                 ..default()
             },
+            DeathSound(RandomAudio::new(get_audio_handles(
+                &asset_server,
+                vec![
+                    "sounds/characters/cultist/die_1.wav".into(),
+                    "sounds/characters/cultist/die_2.wav".into(),
+                ],
+            ))),
+            PainSound(RandomAudio::new(get_audio_handles(
+                &asset_server,
+                vec![
+                    "sounds/characters/cultist/pain_1.wav".into(),
+                    "sounds/characters/cultist/pain_2.wav".into(),
+                    "sounds/characters/cultist/pain_3.wav".into(),
+                ],
+            ))),
             Billboard,
             WorldLocation::new(room, *face),
             Sprite3dBuilder {
@@ -145,8 +174,13 @@ pub fn enemies_find_player(
 pub fn move_enemies(
     mut q_enemies: Query<(&mut WorldLocation, &mut Path), With<Enemy>>,
     mut ev_tick: EventReader<TickEvent>,
+    combat_state: Res<CombatState>,
     world: Res<WorldCatacomb>,
 ) {
+    if combat_state.opponent.is_some() {
+        return;
+    }
+
     for _ in ev_tick.read() {
         for (mut location, mut path) in q_enemies.iter_mut() {
             path.move_location(&mut location, &world);
