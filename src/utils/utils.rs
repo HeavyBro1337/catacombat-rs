@@ -1,4 +1,3 @@
-
 use bevy::math::*;
 
 pub fn convert_ivec2_to_vec3_plane(v: IVec2) -> Vec3 {
