@@ -18,7 +18,7 @@ pub struct CombatState {
 }
 
 #[derive(Event)]
-pub struct CombatEvent(Entity);
+pub struct CombatEvent(Entity); // TODO: Remove this or find the proper usage.
 
 #[derive(Component, Default, Debug)]
 #[require(Health)]
@@ -70,7 +70,6 @@ pub fn damage_enemy(
     mut q_enemies: Query<(
         &mut Health,
         &Enemy,
-        &mut Combat,
         &mut AnimationTimer,
         Entity,
     )>,
@@ -88,7 +87,7 @@ pub fn damage_enemy(
             return;
         }
 
-        let Ok((mut enemy_health, _, enemy_combat, mut enemy_animation, enemy_entity)) =
+        let Ok((mut enemy_health, _, mut enemy_animation, enemy_entity)) =
             q_enemies.get_mut(combat_state.opponent.unwrap())
         else {
             return;

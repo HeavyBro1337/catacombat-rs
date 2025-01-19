@@ -6,5 +6,5 @@ pub enum GameState {
     Loading = 0,
     Game = 1,
     Generating = 2,
-    Menu = 3,
+    // Menu = 3,
 }

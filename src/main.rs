@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::Cursor;
-use std::path::Path;
 use std::path::PathBuf;
 
 use audio::music::setup_background_music;
