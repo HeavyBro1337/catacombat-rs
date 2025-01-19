@@ -16,3 +16,6 @@ bevy_sprite3d = "4.0.0"
 bevy_rustysynth = {version = "0.3.0", features = ["hl4mgm"]}
 pathfinding = "4.13.1"
 clap = { version = "4.5.26", features = ["cargo"]}
+
+[profile.release]
+codegen-units = 1
