@@ -86,6 +86,7 @@ pub fn update_combat(
 }
 
 pub fn damage_enemy(
+    asset_server: Res<AssetServer>,
     mut commands: Commands,
     mut q_player: Query<(&Player, &mut Combat, &mut WorldLocation), Without<Enemy>>,
     mut q_enemies: Query<(&mut Health, &Enemy, &mut AnimationTimer, &PainSound, Entity)>,
@@ -112,16 +113,27 @@ pub fn damage_enemy(
         enemy_health.0 -= 30;
         enemy_animation.play("pain".to_string(), Some("walk".to_string()));
 
-        
+        commands.spawn((
+            AudioPlayer(asset_server.load::<AudioSource>("sounds/weapon/shot_fire2.wav")),
+            PlaybackSettings {
+                mode: bevy::audio::PlaybackMode::Despawn,
+                ..default()
+            },
+        ));
+
+
         ev_damaged.send(DamagedEvent(enemy_entity));
         if enemy_health.0 <= 0 {
             player_combat.is_in_combat = false;
             player_location.can_move = true;
         } else if let Some(pain_sound) = enemy_pain_sound.pick() {
-            commands.spawn((AudioPlayer(pain_sound.clone()), PlaybackSettings {
-                mode: bevy::audio::PlaybackMode::Despawn,
-                ..default()
-            }));
+            commands.spawn((
+                AudioPlayer(pain_sound.clone()),
+                PlaybackSettings {
+                    mode: bevy::audio::PlaybackMode::Despawn,
+                    ..default()
+                },
+            ));
         }
         break;
     }
@@ -149,10 +161,10 @@ pub fn check_player_combat(
         if !player_combat.is_in_combat {
             return;
         }
-        combat_state.is_player_turn = false;
-        combat_state.cooldown.reset();
 
         ev_combat.send(CombatEvent(player_entity));
+        combat_state.is_player_turn = false;
+        combat_state.cooldown.reset();
     }
 }
 
@@ -183,6 +195,7 @@ pub fn check_enemy_combat(
         };
         combat_state.cooldown.reset();
         combat_state.is_player_turn = true;
+
         ev_combat.send(CombatEvent(enemy_entity));
     }
 }
