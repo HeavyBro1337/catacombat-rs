@@ -1,1 +1,8 @@
 /target
+
+# Ignore soundfonts
+**/*.sf2
+
+# Except:
+# Un-ignore embedded in src/ folder.
+!src/embedded/**/*
