@@ -8,10 +8,8 @@ fn main() {
 
     let assets_dir = Path::new("assets");
 
-    // Определяем целевую платформу
     let target = env::var("CARGO_BUILD_TARGET").unwrap_or_else(|_| env::var("TARGET").unwrap());
 
-    // Определяем директорию, где будет находиться бинарник
     let target_dir = "target";
     let profile = env::var("PROFILE").unwrap_or_else(|_| "debug".to_string());
     let target_assets_dir = Path::new(target_dir).join(target).join(profile).join("assets");
