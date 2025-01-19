@@ -50,27 +50,29 @@ use gen::walker::*;
 use loading::loading::*;
 use room::mesh::*;
 use state::GameState;
+use std::io::Read;
 use tick::tick::TickEvent;
 use ui::tint::damage_screen;
 use ui::tint::destroy_tints;
 use visuals::animation::animate_sprite;
 use visuals::animation::Animations;
 use visuals::billboard::update_billboards;
-use std::io::Read;
 
 fn cli() -> ArgMatches {
     command!()
-    .arg(arg!([soundfont]
-        -s --soundfont "Sets custom soundfont before startup"
-    )
-    .required(false)
-    .value_parser(value_parser!(PathBuf)))
-    .get_matches()
+        .arg(
+            arg!([soundfont]
+                -s --soundfont <FILE> "Sets custom soundfont before startup"
+            )
+            .required(false)
+            .value_parser(value_parser!(PathBuf)),
+        )
+        .get_matches()
 }
 
 fn try_open_soundfont(path: Option<PathBuf>) -> Vec<u8> {
     let hl4mgm: Vec<u8> = include_bytes!("./embedded/soundfonts/hl4mgm.sf2").to_vec();
-    
+
     if path.is_none() {
         return hl4mgm;
     }
@@ -80,15 +82,19 @@ fn try_open_soundfont(path: Option<PathBuf>) -> Vec<u8> {
     match File::open(path.clone()) {
         Ok(mut file) => {
             let mut buffer = Vec::new();
-    
+
             if file.read_to_end(&mut buffer).is_ok() {
                 buffer
             } else {
                 hl4mgm
             }
-        },
+        }
         Err(err) => {
-            warn!("Failed to open soundfont at path \"{}\": {}.\nUsing hl4mgm.sf2", path.display(), err);
+            warn!(
+                "Failed to open soundfont at path \"{}\": {}.\nUsing hl4mgm.sf2",
+                path.display(),
+                err
+            );
             hl4mgm
         }
     }
@@ -121,7 +127,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugins(RustySynthPlugin {
-            soundfont: Cursor::new(sf2_vec)
+            soundfont: Cursor::new(sf2_vec),
         })
         .add_plugins(Sprite3dPlugin)
         .add_plugins(WorldInspectorPlugin::new())
