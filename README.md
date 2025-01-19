@@ -5,5 +5,6 @@ Catacombat is a dungeon crawler written in Rust programming language using [Bevy
 
 # Credits
 
-Crypt Voice - Music
-Ivan Korchmit - Programming & Art
+**Crypt Voice** - Music
+
+**Ivan Korchmit** - Programming & Art
