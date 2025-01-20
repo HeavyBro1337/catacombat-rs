@@ -2,7 +2,7 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "/assets/items.json"
+                "/assets/*.items.json"
             ],
             "schema": {
                 "type": "array",
@@ -19,10 +19,6 @@
                             "type": "string",
                             "enum": ["WEAPON", "AMMO_SUPPLY", "FOOD", "ARMOR", "COMMON"]
                         },
-                        "category": {
-                            "type": "string",
-                            "enum": ["SHOTGUN", "SHARP", "BLUNT", "GUN"]
-                        }
                     },
                     "required": ["name", "type", "sprite"],
                     "allOf": [
@@ -34,14 +30,22 @@
                             },
                             "then": {
                                 "properties": {
-                                    "damage": {
-                                        "type": "integer"
+                                    "weaponProperties": {
+                                        "type": "object",
+                                        "damage": {
+                                            "type": "integer"
+                                        },
+                                        "durability": {
+                                            "type": "integer"
+                                        },
+                                        "category": {
+                                            "type": "string",
+                                            "enum": ["SHOTGUN", "SHARP", "BLUNT", "GUN"]
+                                        },
+                                        "required": ["damage", "durability", "category"]
                                     },
-                                    "durability": {
-                                        "type": "integer"
-                                    }
                                 },
-                                "required": ["damage", "durability"]
+                                "required": ["weaponProperties"]
                             }
                         },
                         {
@@ -52,12 +56,15 @@
                             },
                             "then": {
                                 "properties": {
-                                    "category": {
-                                        "type": "string",
-                                        "enum": ["SHOTGUN", "GUN"]
+                                    "ammoProperties": {
+                                        "category": {
+                                            "type": "string",
+                                            "enum": ["SHOTGUN", "GUN"]
+                                        },
+                                        "required": ["category"]
                                     }
-                                }
-
+                                },
+                                "required": ["ammoProperties"]
                             }
                         }
                     ]
