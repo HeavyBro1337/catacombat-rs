@@ -158,7 +158,7 @@ pub fn setup_rooms(
     textures: Res<AssetServer>,
 ) {
     println!("Setting up rooms");
-    for loc in location.0.iter() {
+    for loc in location.iter() {
         // Floor
         let mesh = generate_floor_mesh(&mut assets);
         commands.spawn((
@@ -193,11 +193,11 @@ pub fn setup_walls(
 ) {
     println!("Setting up walls");
 
-    for loc in location.0.iter() {
+    for loc in location.iter() {
         for i in -1..2 {
             for j in -1..2 {
                 let loc = *loc + IVec2::from_array([i, j]);
-                if !location.0.contains(&loc) {
+                if !location.contains(&loc) {
                     let mesh = generate_wall_mesh(&mut assets);
                     let mut translation = convert_ivec2_to_vec3_plane(loc) * F32_ROOM_SIZE;
                     translation.y = F32_ROOM_SIZE / 2.0;
