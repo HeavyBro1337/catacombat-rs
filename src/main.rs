@@ -11,6 +11,7 @@ mod audio;
 mod characters;
 mod combat;
 mod gen;
+mod inventory;
 mod loading;
 mod room;
 mod state;
