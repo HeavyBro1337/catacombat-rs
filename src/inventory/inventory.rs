@@ -3,16 +3,19 @@ use bevy_common_assets::json::JsonAssetPlugin;
 
 use crate::{state::GameState, LoadingAssets};
 
-use super::item::{get_item_from_type, Item, ItemMetas};
+use super::{
+    db::ItemDB,
+    item::{get_item_from_type, Item, ItemMetas},
+};
 
 #[derive(Default, Resource, Deref, DerefMut)]
 pub struct Inventory(Vec<usize>);
 
 impl Inventory {
     pub fn load_items<'a>(&self, db: &'a Res<ItemDB>) -> Vec<&'a ItemInstance> {
-        self.iter().map(|index| {
-            db.get(*index).unwrap()
-        }).collect::<Vec<_>>()
+        self.iter()
+            .map(|index| db.get(*index).unwrap())
+            .collect::<Vec<_>>()
     }
 }
 
@@ -20,11 +23,8 @@ pub struct ItemInstance {
     pub ui_name: String,
     pub ui_description: String,
     pub item: Box<dyn Item>,
-    pub sprite: Handle<Image>
+    pub sprite: Handle<Image>,
 }
-
-#[derive(DerefMut, Deref, Resource, Default)]
-pub struct ItemDB(Vec<ItemInstance>);
 
 pub struct InventoryPlugin;
 
