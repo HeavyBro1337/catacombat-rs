@@ -16,3 +16,4 @@ bevy_sprite3d = "4.0.0"
 bevy_rustysynth = { version = "0.3.0" }
 pathfinding = "4.13.1"
 clap = { version = "4.5.26", features = ["cargo"]}
+bevy_common_assets = { version = "0.12", features = ["json"] }
