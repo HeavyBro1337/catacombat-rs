@@ -7,9 +7,10 @@
             "schema": {
                 "type": "array",
                 "items": {
+                    "type": "object",
                     "properties": {
-                        "key": {
-                            "type": "integer"
+                        "sprite": {
+                            "type": "string"
                         },
                         "name": {
                             "type": "string"
@@ -18,10 +19,17 @@
                             "type": "string",
                             "enum": ["WEAPON", "AMMO_SUPPLY", "FOOD", "ARMOR", "COMMON"]
                         },
-                        "properties": {
+                        "category": {
+                            "type": "string",
+                            "enum": ["SHOTGUN", "SHARP", "BLUNT", "GUN"]
+                        }
+                    },
+                    "required": ["name", "type", "sprite"],
+                    "allOf": [
+                        {
                             "if": {
                                 "properties": {
-                                    "type": { "const": "WEAPON"}
+                                    "type": { "const": "WEAPON" }
                                 }
                             },
                             "then": {
@@ -32,12 +40,29 @@
                                     "durability": {
                                         "type": "integer"
                                     }
+                                },
+                                "required": ["damage", "durability"]
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": { "const": "AMMO_SUPPLY" }
                                 }
+                            },
+                            "then": {
+                                "properties": {
+                                    "category": {
+                                        "type": "string",
+                                        "enum": ["SHOTGUN", "GUN"]
+                                    }
+                                }
+
                             }
                         }
-                    },
-                }
+                    ]
+                },
             }
         }
-    ]
+    ],
 }
