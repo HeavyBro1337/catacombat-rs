@@ -80,12 +80,21 @@ fn try_open_soundfont(path: Option<PathBuf>) -> Vec<u8> {
 
     match File::open(path.clone()) {
         Ok(mut file) => {
+            info!("Opened custom soundfont.");
             let mut buffer = Vec::new();
-
-            if file.read_to_end(&mut buffer).is_ok() {
-                buffer
-            } else {
-                hl4mgm
+            match file.read_to_end(&mut buffer) {
+                Ok(_) => {
+                    info!("Successfully loaded custom soundfont!");
+                    buffer
+                }
+                Err(err) => {
+                    warn!(
+                        "Failed to open soundfont at path \"{}\": {}.\nUsing hl4mgm.sf2",
+                        path.display(),
+                        err
+                    );
+                    hl4mgm
+                }
             }
         }
         Err(err) => {
@@ -103,7 +112,7 @@ fn main() {
     let matches = cli();
 
     let soundfont_path = matches.get_one::<PathBuf>("soundfont").cloned();
-
+    dbg!(soundfont_path.clone());
     let sf2_vec = try_open_soundfont(soundfont_path).clone();
 
     App::new()

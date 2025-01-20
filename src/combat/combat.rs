@@ -121,7 +121,6 @@ pub fn damage_enemy(
             },
         ));
 
-
         ev_damaged.send(DamagedEvent(enemy_entity));
         if enemy_health.0 <= 0 {
             player_combat.is_in_combat = false;
