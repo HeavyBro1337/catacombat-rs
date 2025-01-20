@@ -1,0 +1,43 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/assets/items.json"
+            ],
+            "schema": {
+                "type": "array",
+                "items": {
+                    "properties": {
+                        "key": {
+                            "type": "integer"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["WEAPON", "AMMO_SUPPLY", "FOOD", "ARMOR", "COMMON"]
+                        },
+                        "properties": {
+                            "if": {
+                                "properties": {
+                                    "type": { "const": "WEAPON"}
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "damage": {
+                                        "type": "integer"
+                                    },
+                                    "durability": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                }
+            }
+        }
+    ]
+}
