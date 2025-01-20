@@ -49,6 +49,7 @@ use gen::location::*;
 use gen::walker::*;
 use inventory::inventory::InventoryPlugin;
 use loading::loading::*;
+use room::items::place_items;
 use room::mesh::*;
 use state::GameState;
 use std::io::Read;
@@ -198,6 +199,7 @@ fn main() {
                 setup_walls,
                 setup_background_music,
                 setup_enemies,
+                place_items
             ),),
         )
         .run();
