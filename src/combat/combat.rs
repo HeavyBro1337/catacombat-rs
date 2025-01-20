@@ -1,7 +1,5 @@
-use bevy::{audio::Source, prelude::*};
+use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
-use rand::seq::IteratorRandom;
-use rand::{seq::SliceRandom, thread_rng};
 
 use crate::audio::random::RandomAudio;
 use crate::{
@@ -14,7 +12,7 @@ use crate::{
 };
 
 use super::death::DeathSound;
-use super::pain::{self, PainSound};
+use super::pain::{PainSound};
 
 #[derive(Resource)]
 pub struct CombatState {

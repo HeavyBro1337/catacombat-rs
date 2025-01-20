@@ -3,7 +3,7 @@ use bevy_common_assets::json::JsonAssetPlugin;
 
 use crate::{state::GameState, LoadingAssets};
 
-use super::item::{get_item_from_type, Item, ItemMeta, ItemMetas};
+use super::item::{get_item_from_type, Item, ItemMetas};
 
 #[derive(Default, Resource, Deref, DerefMut)]
 pub struct Inventory(Vec<usize>);

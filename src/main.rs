@@ -4,7 +4,6 @@ use std::path::PathBuf;
 
 use audio::music::setup_background_music;
 use bevy::prelude::*;
-use bevy_common_assets::json::JsonAssetPlugin;
 use bevy_rustysynth::RustySynthPlugin;
 use bevy_sprite3d::Sprite3dPlugin;
 
@@ -49,7 +48,6 @@ use combat::combat::DamagedEvent;
 use gen::location::*;
 use gen::walker::*;
 use inventory::inventory::InventoryPlugin;
-use inventory::item::ItemMeta;
 use loading::loading::*;
 use room::mesh::*;
 use state::GameState;
