@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Sawn-off Shotgun",
+        "type": "WEAPON",
+        "weaponProperties": {
+            "damage": 30,
+            "durability": 100,
+            "category": "SHOTGUN"
+        },
+        "sprite": "sprites/items/sawn_off.png"
+    },
+    {
+        "name": "Buckshot shell",
+        "type": "AMMO_SUPPLY",
+        "ammoProperties": {
+            "category": "SHOTGUN"
+        },
+        "sprite": "sprites/items/buckshot_shell.png"
+    },
+    {
+        "name": "Knife",
+        "type": "WEAPON",
+        "weaponProperties": {
+            "category": "SHARP",
+            "durability": 30,
+            "damage": 10
+        },
+        "sprite": "sprites/items/knife.png"
+    }
+]
