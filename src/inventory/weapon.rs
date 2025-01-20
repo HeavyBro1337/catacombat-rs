@@ -2,22 +2,20 @@ use serde::{Deserialize, Serialize};
 
 use super::item::Item;
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum WeaponCategory {
     Shotgun,
     Gun,
     Blunt,
-    Sharp
+    Sharp,
 }
-
 
 #[derive(Debug)]
 pub struct Weapon {
     pub durability: i32,
     pub damage: i32,
-    pub category: WeaponCategory
+    pub category: WeaponCategory,
 }
 
 impl Item for Weapon {
@@ -28,7 +26,7 @@ impl Item for Weapon {
 
 #[derive(Debug)]
 pub struct Ammo {
-    pub category: WeaponCategory
+    pub category: WeaponCategory,
 }
 
 impl Item for Ammo {

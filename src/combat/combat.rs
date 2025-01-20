@@ -12,7 +12,7 @@ use crate::{
 };
 
 use super::death::DeathSound;
-use super::pain::{PainSound};
+use super::pain::PainSound;
 
 #[derive(Resource)]
 pub struct CombatState {

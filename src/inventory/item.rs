@@ -1,12 +1,19 @@
 use bevy::{
     asset::Asset,
-    prelude::{Deref, DerefMut},
+    prelude::{Component, Deref, DerefMut, Transform},
     reflect::TypePath,
+    sprite::Sprite,
 };
 
+use bevy_sprite3d::Sprite3d;
 use serde::{Deserialize, Serialize};
 
-use super::{food::Food, weapon::{Ammo, Weapon, WeaponCategory}};
+use crate::{characters::location::WorldLocation, visuals::billboard::Billboard};
+
+use super::{
+    food::Food,
+    weapon::{Ammo, Weapon, WeaponCategory},
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -15,7 +22,7 @@ pub(crate) enum ItemType {
     Common,
     AmmoSupply,
     Food,
-    Armor
+    Armor,
 }
 
 pub trait Item: Send + Sync {
