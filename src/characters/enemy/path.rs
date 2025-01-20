@@ -40,7 +40,7 @@ impl Path {
         world: &Res<WorldCatacomb>,
         target: IVec2,
     ) {
-        if !world.0.contains(&target) {
+        if !world.contains(&target) {
             error!("Target is outside the map.");
             return;
         }
@@ -59,7 +59,7 @@ impl Path {
 
                 successors
                     .iter()
-                    .filter(|p| world.0.contains(*p))
+                    .filter(|p| world.contains(*p))
                     .map(|p| (*p, 1))
                     .collect::<Vec<_>>()
             },

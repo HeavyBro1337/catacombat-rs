@@ -67,7 +67,7 @@ impl WorldLocation {
 
         let forward_location = self.location + self.forward;
 
-        if !world.0.contains(&forward_location) {
+        if !world.contains(&forward_location) {
             return;
         }
 

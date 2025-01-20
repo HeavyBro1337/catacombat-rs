@@ -46,7 +46,7 @@ impl Walker {
         };
         self.current_location += offset;
 
-        if !location.0.insert(self.current_location) {
+        if !location.insert(self.current_location) {
             self.steps_to_live -= 1;
         }
     }

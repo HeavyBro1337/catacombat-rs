@@ -92,7 +92,6 @@ pub fn setup_enemies(
 ) {
     let dirs = vec![IVec2::X, IVec2::Y, IVec2::NEG_X, IVec2::NEG_Y];
     for room in world
-        .0
         .iter()
         .collect::<Vec<_>>()
         .choose_multiple(&mut rand::thread_rng(), 4)
