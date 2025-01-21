@@ -1,14 +1,11 @@
 use bevy::{
     asset::Asset,
-    prelude::{Component, Deref, DerefMut, Transform},
+    prelude::{Deref, DerefMut},
     reflect::TypePath,
-    sprite::Sprite,
 };
 
-use bevy_sprite3d::Sprite3d;
 use serde::{Deserialize, Serialize};
 
-use crate::{characters::location::WorldLocation, visuals::billboard::Billboard};
 
 use super::{
     food::Food,

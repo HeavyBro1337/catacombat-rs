@@ -73,7 +73,7 @@ pub fn setup_camera(
         ..default()
     };
 
-    let mut weapon_render_texture: Image = Image {
+    let weapon_render_texture: Image = Image {
         texture_descriptor: TextureDescriptor {
             label: None,
             size,
@@ -179,7 +179,7 @@ pub fn sync_camera(
     let forward = player_location.get_forward().as_vec2();
     let location = player_location.get_location();
     let angle = forward.to_angle();
-    let (mut transform) = q_camera.single_mut();
+    let mut transform = q_camera.single_mut();
 
     let mut final_translation = convert_ivec2_to_vec3_plane(location) * F32_ROOM_SIZE;
     final_translation.y = CAMERA_HEIGHT;

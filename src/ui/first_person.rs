@@ -1,12 +1,8 @@
-use bevy::{prelude::*, render::view::RenderLayers};
+use bevy::prelude::*;
 use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
 
 use crate::{
-    characters::player::player::Player,
-    visuals::{
-        animation::{AnimationInfo, AnimationTimer, Animations},
-        billboard::Billboard,
-    },
+    visuals::animation::{AnimationInfo, AnimationTimer, Animations},
     MainCamera,
 };
 

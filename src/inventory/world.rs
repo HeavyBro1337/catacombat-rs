@@ -1,14 +1,7 @@
 use bevy::prelude::*;
-use bevy::text::cosmic_text::ttf_parser::loca;
-use bevy::{
-    asset::Asset,
-    prelude::{Component, Deref, DerefMut, Transform},
-    reflect::TypePath,
-    sprite::Sprite,
-};
+use bevy::prelude::{Component, Deref, DerefMut};
 
-use bevy_sprite3d::{Sprite3d, Sprite3dBuilder, Sprite3dParams};
-use serde::{Deserialize, Serialize};
+use bevy_sprite3d::{Sprite3dBuilder, Sprite3dParams};
 
 use crate::WorldCatacomb;
 use crate::{characters::location::WorldLocation, visuals::billboard::Billboard};
@@ -24,7 +17,7 @@ pub fn spawn_item(
     world: &Res<WorldCatacomb>,
     item_db: &Res<ItemDB>,
     commands: &mut Commands,
-    mut sprite_params: &mut Sprite3dParams,
+    sprite_params: &mut Sprite3dParams,
 ) {
     if !world.contains(&location) {
         return;
