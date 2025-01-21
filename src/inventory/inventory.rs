@@ -47,7 +47,6 @@ fn load_items_db_from_json(
     let Some(metas) = item_metas.get(&metas) else {
         panic!("Could not load items.json. Is anything ok?");
     };
-    dbg!(metas);
     for meta in metas.iter() {
         items_db.push(ItemInstance {
             sprite: asset_server.load(meta.sprite.clone()),

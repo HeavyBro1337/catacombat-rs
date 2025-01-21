@@ -34,8 +34,11 @@ use super::player::Player;
 
 pub(crate) const CAMERA_HEIGHT: f32 = 1.5;
 
-const RENDER_TEXTURE_WIDTH: u32 = 320;
-const RENDER_TEXTURE_HEIGHT: u32 = 200;
+pub const RENDER_TEXTURE_WIDTH: u32 = 320;
+pub const RENDER_TEXTURE_HEIGHT: u32 = 200;
+
+#[derive(Component)]
+pub struct MainCamera;
 
 pub fn setup_camera(
     mut commands: Commands,
@@ -70,9 +73,27 @@ pub fn setup_camera(
         ..default()
     };
 
+    let mut weapon_render_texture: Image = Image {
+        texture_descriptor: TextureDescriptor {
+            label: None,
+            size,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Bgra8UnormSrgb,
+            mip_level_count: 1,
+            sample_count: 1,
+            usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
+                | TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        },
+        sampler: ImageSampler::nearest(), // For pixelated look
+        ..default()
+    };
+
     render_texture.resize(size);
 
     let render_texture_handle = images.add(render_texture);
+    let weapon_render_texture_handle = images.add(weapon_render_texture);
 
     let (player, _) = q_player.single();
 
@@ -81,6 +102,21 @@ pub fn setup_camera(
         Camera {
             order: -1,
             target: render_texture_handle.clone().into(),
+            clear_color: Color::WHITE.into(),
+            ..default()
+        },
+        Projection::Perspective(PerspectiveProjection {
+            fov: 90.0_f32.to_radians(),
+            ..default()
+        }),
+        MainCamera,
+    ));
+
+    commands.entity(player).insert((
+        Camera3d::default(),
+        Camera {
+            order: -1,
+            target: weapon_render_texture_handle.clone().into(),
             clear_color: Color::WHITE.into(),
             ..default()
         },
@@ -99,15 +135,29 @@ pub fn setup_camera(
             )),
             ..default()
         },
-        Transform::from_scale(Vec3::splat(4.0)),
+        Transform::from_scale(Vec3::splat(4.0)).with_translation((0.0, 0.0, -3.0).into()),
+        RenderLayers::layer(1),
+    ));
+
+    // Weapon arms
+    commands.spawn((
+        Sprite {
+            image: weapon_render_texture_handle,
+            custom_size: Some(Vec2::new(
+                RENDER_TEXTURE_WIDTH as f32,
+                RENDER_TEXTURE_HEIGHT as f32,
+            )),
+            ..default()
+        },
+        Transform::from_scale(Vec3::splat(4.0)).with_translation((0.0, 0.0, -2.0).into()),
         RenderLayers::layer(1),
     ));
 
     commands.spawn((Camera2d::default(), RenderLayers::layer(1)));
 }
 
-pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With<WorldLocation>>) {
-    let (entity, _) = q_camera.single();
+pub fn spawn_fog(mut commands: Commands, q_camera: Query<Entity, With<MainCamera>>) {
+    let entity = q_camera.single();
     commands.entity(entity).insert(DistanceFog {
         color: Color::BLACK,
         falloff: FogFalloff::Linear {
@@ -120,7 +170,7 @@ pub fn spawn_fog(mut commands: Commands, q_camera: Query<(Entity, &Camera), With
 
 pub fn sync_camera(
     q_player: Query<&WorldLocation, With<Player>>,
-    mut q_camera: Query<(&mut Transform, &Camera), With<WorldLocation>>,
+    mut q_camera: Query<&mut Transform, With<MainCamera>>,
     time: Res<Time>,
 ) {
     const LERP_SPEED: f32 = 10.0;
@@ -129,7 +179,7 @@ pub fn sync_camera(
     let forward = player_location.get_forward().as_vec2();
     let location = player_location.get_location();
     let angle = forward.to_angle();
-    let (mut transform, _) = q_camera.single_mut();
+    let (mut transform) = q_camera.single_mut();
 
     let mut final_translation = convert_ivec2_to_vec3_plane(location) * F32_ROOM_SIZE;
     final_translation.y = CAMERA_HEIGHT;

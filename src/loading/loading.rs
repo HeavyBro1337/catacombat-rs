@@ -20,6 +20,12 @@ pub fn setup_loading(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     loading_assets.push(
         asset_server
+            .load_untyped("sprites/ui/sawn_off.png")
+            .untyped(),
+    );
+
+    loading_assets.push(
+        asset_server
             .load_untyped("textures/wall_emission.png")
             .untyped(),
     );

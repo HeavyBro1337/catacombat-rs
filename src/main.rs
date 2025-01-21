@@ -54,9 +54,13 @@ use room::mesh::*;
 use state::GameState;
 use std::io::Read;
 use tick::tick::TickEvent;
+use ui::first_person::setup_weapon_atlas;
+use ui::first_person::spawn_first_person_weapon;
 use ui::tint::damage_screen;
 use ui::tint::destroy_tints;
-use visuals::animation::animate_sprite;
+use visuals::animation::animate_sprite2d;
+use visuals::animation::animate_sprite3d;
+use visuals::animation::AnimationTimer;
 use visuals::animation::Animations;
 use visuals::billboard::update_billboards;
 
@@ -115,7 +119,6 @@ fn main() {
     let matches = cli();
 
     let soundfont_path = matches.get_one::<PathBuf>("soundfont").cloned();
-    dbg!(soundfont_path.clone());
     let sf2_vec = try_open_soundfont(soundfont_path).clone();
 
     App::new()
@@ -144,6 +147,7 @@ fn main() {
         .add_plugins(InventoryPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .register_type::<WorldLocation>()
+        .register_type::<AnimationTimer>()
         .add_event::<TickEvent>()
         .add_event::<CombatEvent>()
         .add_event::<DamagedEvent>()
@@ -159,7 +163,10 @@ fn main() {
             Update,
             check_assets_ready.run_if(in_state(GameState::Loading)),
         )
-        .add_systems(OnExit(GameState::Loading), setup_enemy_atlas)
+        .add_systems(
+            OnExit(GameState::Loading),
+            (setup_enemy_atlas, setup_weapon_atlas),
+        )
         .add_systems(OnEnter(GameState::Generating), setup_walkers)
         .add_systems(PostStartup, (setup_player, setup_camera, spawn_fog).chain())
         .add_systems(
@@ -186,7 +193,8 @@ fn main() {
                     check_player_combat,
                     check_enemy_combat,
                     damage_screen,
-                    animate_sprite,
+                    animate_sprite3d,
+                    animate_sprite2d,
                 )
                     .run_if(in_state(GameState::Game)),
                 (update_character_sprite_positions, update_billboards),
@@ -196,10 +204,11 @@ fn main() {
             OnExit(GameState::Generating),
             ((
                 setup_rooms,
+                spawn_first_person_weapon,
                 setup_walls,
                 setup_background_music,
                 setup_enemies,
-                place_items
+                place_items,
             ),),
         )
         .run();

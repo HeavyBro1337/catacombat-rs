@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
 use bevy_sprite3d::Sprite3d;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
 pub struct AnimationTimer {
     pub timer: Timer,
     pub library: String,
@@ -9,6 +9,7 @@ pub struct AnimationTimer {
     pub current_frame: usize,
     pub next: Option<String>,
     pub update_now: bool,
+    pub paused: bool,
 }
 
 impl AnimationTimer {
@@ -91,7 +92,7 @@ impl Animations {
     }
 }
 
-pub fn animate_sprite(
+pub fn animate_sprite3d(
     time: Res<Time>,
     mut q_sprites: Query<(&mut AnimationTimer, &mut Sprite3d)>,
     animations: Res<Animations>,
@@ -107,6 +108,37 @@ pub fn animate_sprite(
                 )
                 .unwrap();
             let atlas = sprite_3d.texture_atlas.as_mut().unwrap();
+            animation.next_frame(&info);
+            let layout_width = animations
+                .get_layout_width(animation.library.clone())
+                .unwrap();
+
+            atlas.index = index(animation.current_frame, info.row, layout_width);
+        }
+    }
+}
+
+pub fn animate_sprite2d(
+    time: Res<Time>,
+    mut q_sprites: Query<(&mut AnimationTimer, &mut Sprite)>,
+    animations: Res<Animations>,
+) {
+    for (mut animation, mut sprite_2d) in q_sprites.iter_mut() {
+        animation.timer.tick(time.delta());
+
+        if animation.paused {
+            continue;
+        }
+
+        if animation.timer.just_finished() || animation.update_now {
+            animation.update_now = false;
+            let info = animations
+                .get_animation(
+                    animation.library.clone(),
+                    animation.current_animation.clone(),
+                )
+                .unwrap();
+            let atlas = sprite_2d.texture_atlas.as_mut().unwrap();
             animation.next_frame(&info);
             let layout_width = animations
                 .get_layout_width(animation.library.clone())
